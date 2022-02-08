@@ -11,5 +11,12 @@
 
     <artifactId>mocloud-account</artifactId>
 
+    <dependencies>
+        <dependency>
+            <groupId>com.mo</groupId>
+            <artifactId>mocloud-common</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
+    </dependencies>
 
 </project>
