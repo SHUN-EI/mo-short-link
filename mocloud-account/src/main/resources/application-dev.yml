@@ -30,3 +30,8 @@ mybatis-plus:
 logging:
   level:
     root: INFO
+#sms短信相关配置
+sms:
+  app-code: 204866027b5a4adbbee9109bff41c287
+  template-id: M72CB42894
+  url: https://jmsms.market.alicloudapi.com/sms/send
