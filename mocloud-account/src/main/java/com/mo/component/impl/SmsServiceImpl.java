@@ -2,6 +2,7 @@ package com.mo.component.impl;
 
 import com.mo.component.SmsService;
 import com.mo.config.SmsConfig;
+import com.mo.utils.CommonUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
@@ -29,6 +30,10 @@ public class SmsServiceImpl implements SmsService {
      */
     @Override
     public void sendSms(String to, String subject, String content) {
+
+        //埋点，测试接口响应耗时
+        long startTime = CommonUtil.getCurrentTimestamp();
+
         //拼接短信发送的url
         String url = smsConfig.getUrl() + "?mobile=" + to + "&templateId=" + subject + "&value=" + content;
 
@@ -39,7 +44,10 @@ public class SmsServiceImpl implements SmsService {
         HttpEntity entity = new HttpEntity<>(headers);
         //发送
         ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.POST, entity, String.class);
-        log.info("url={},body={}", url, response.getBody());
+
+        long endTime = CommonUtil.getCurrentTimestamp();
+
+        log.info("接口响应耗时={},url={},body={}", endTime - startTime, url, response.getBody());
 
         if (response.getStatusCode() == HttpStatus.OK) {
             log.info("发送短信验证码成功:{}", response.getBody());
