@@ -25,7 +25,7 @@ public class NotifyServiceImpl implements NotifyService {
      * 模拟测试发送短信验证码接口
      */
     @Override
-    @Async
+    @Async("threadPoolTaskExecutor")
     public void sendTest() {
 
         //方法1:线程睡眠，模拟接口处理响应时间
