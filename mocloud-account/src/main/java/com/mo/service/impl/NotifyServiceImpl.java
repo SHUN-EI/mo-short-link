@@ -1,5 +1,6 @@
 package com.mo.service.impl;
 
+import com.mo.component.MailService;
 import com.mo.component.SmsService;
 import com.mo.config.SmsConfig;
 import com.mo.constant.CacheKey;
@@ -35,12 +36,24 @@ public class NotifyServiceImpl implements NotifyService {
     private SmsService smsService;
     @Autowired
     private SmsConfig smsConfig;
+    @Autowired
+    private MailService mailService;
 
 
     /**
      * 验证码过期时间，10min有效
      */
     private static final int CODE_EXPIRED = 60 * 1000 * 10;
+
+    /**
+     * 验证码的标题
+     */
+    private static final String SUBJECT = "mo-short-link的验证码";
+
+    /**
+     * 验证码的内容
+     */
+    private static final String CONTENT = "您的验证码是%s,有效时间是10分钟,打死都不要告诉别人哦";
 
     /**
      * 发送验证码（短信验证码或邮箱验证码）
@@ -80,6 +93,8 @@ public class NotifyServiceImpl implements NotifyService {
             return JsonData.buildSuccess(code);
         } else if (CheckUtil.isEmail(to)) {
             //发送邮箱验证码
+            mailService.sendMail(to, SUBJECT, String.format(CONTENT, code));
+            return JsonData.buildSuccess(code);
         }
 
         //接收号码不合规范
