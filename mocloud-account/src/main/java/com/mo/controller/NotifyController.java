@@ -1,15 +1,16 @@
 package com.mo.controller;
 
 import com.google.code.kaptcha.Producer;
+import com.mo.enums.BizCodeEnum;
+import com.mo.enums.SendCodeEnum;
+import com.mo.request.SendCodeRequest;
 import com.mo.service.NotifyService;
 import com.mo.utils.CommonUtil;
 import com.mo.utils.JsonData;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.imageio.ImageIO;
 import javax.servlet.ServletOutputStream;
@@ -39,6 +40,37 @@ public class NotifyController {
      */
     private static final long CAPTCHA_CODE_EXPIRED = 60 * 1000 * 10;
 
+
+    /**
+     * 发送验证码（短信验证码或邮箱验证码）
+     * <p>
+     * 1.匹配图形验证码是否正常
+     * 2.发送验证码
+     *
+     * @param request
+     * @return
+     */
+    @PostMapping("/sendCode")
+    public JsonData sendCode(@RequestBody SendCodeRequest request, HttpServletRequest servletRequest) {
+        //Redis缓存的key
+        String captchaKey = getCaptchaKey(servletRequest);
+        //Redis保存的验证码
+        String cacheCaptcha = (String) redisTemplate.opsForValue().get(captchaKey);
+
+        String captcha = request.getCaptcha();
+
+        //匹配图形验证码
+        if (captcha != null && cacheCaptcha != null && captcha.equalsIgnoreCase(cacheCaptcha)) {
+            //删除缓存中的验证码,不删除的话就过期时间自动删除
+            redisTemplate.delete(captchaKey);
+
+            //发送验证码
+            JsonData jsonData = notifyService.sendCode(SendCodeEnum.USER_REGISTER, request.getTo());
+            return jsonData;
+        } else {
+            return JsonData.buildResult(BizCodeEnum.CODE_CAPTCHA_ERROR);
+        }
+    }
 
     /**
      * 获取图形验证码
