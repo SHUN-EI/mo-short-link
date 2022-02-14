@@ -19,16 +19,16 @@ spring:
     host: 39.108.182.26
     password: 123456
     port: 8000
-#    jedis:
-#      pool:
-#        # 连接池最大连接数（使用负值表示没有限制）
-#        max-active: 100
-#        # 连接池中的最大空闲连接
-#        max-idle: 100
-#        # 连接池中的最小空闲连接
-#        min-idle: 100
-#        # 连接池最大阻塞等待时间（使用负值表示没有限制）
-#        max-wait: 60000
+  #    jedis:
+  #      pool:
+  #        # 连接池最大连接数（使用负值表示没有限制）
+  #        max-active: 100
+  #        # 连接池中的最大空闲连接
+  #        max-idle: 100
+  #        # 连接池中的最小空闲连接
+  #        min-idle: 100
+  #        # 连接池最大阻塞等待时间（使用负值表示没有限制）
+  #        max-wait: 60000
   mail:    #邮箱配置
     host: smtp.126.com #发送邮件服务器
     username: sixcapital138@126.com #发送邮件的邮箱地址
@@ -59,3 +59,10 @@ sms:
   app-code: 204866027b5a4adbbee9109bff41c287
   template-id: M72CB42894
   url: https://jmsms.market.alicloudapi.com/sms/send
+#阿里云OSS配置
+aliyun:
+  oss:
+    endpoint: oss-cn-shenzhen.aliyuncs.com
+    access-key-id: LTAI5tPQHJvmvENFb5J8tUKG
+    access-key-secret: DNI7wU7HqeF9UUReByft5i8F7eJ6HX
+    bucketname: mo-short-link-account-service
