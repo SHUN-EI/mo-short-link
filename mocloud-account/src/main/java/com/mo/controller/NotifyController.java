@@ -133,6 +133,7 @@ public class NotifyController {
      *
      * @return
      */
+    @ApiOperation("测试发送短信验证码接口")
     @GetMapping("/testSend")
     public JsonData testSend() {
         notifyService.sendTest();

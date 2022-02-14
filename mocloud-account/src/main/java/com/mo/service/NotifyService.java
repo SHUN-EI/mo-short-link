@@ -18,7 +18,18 @@ public interface NotifyService {
     JsonData sendCode(SendCodeEnum sendCodeEnum, String to);
 
     /**
+     * 校验验证码
+     * @param sendCodeEnum
+     * @param to
+     * @param code
+     * @return
+     */
+    Boolean checkCode(SendCodeEnum sendCodeEnum, String to, String code);
+
+    /**
      * 用于测试
      */
     void sendTest();
+
+
 }
