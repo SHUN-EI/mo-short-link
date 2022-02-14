@@ -7,6 +7,9 @@ import com.mo.request.SendCodeRequest;
 import com.mo.service.NotifyService;
 import com.mo.utils.CommonUtil;
 import com.mo.utils.JsonData;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -23,6 +26,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * Created by mo on 2022/2/9
  */
+@Api(tags = "通知模块")
 @RestController
 @RequestMapping("/api/account/v1")
 @Slf4j
@@ -50,8 +54,11 @@ public class NotifyController {
      * @param request
      * @return
      */
+    @ApiOperation("发送验证码")
     @PostMapping("/sendCode")
-    public JsonData sendCode(@RequestBody SendCodeRequest request, HttpServletRequest servletRequest) {
+    public JsonData sendCode(@ApiParam("发送验证码请求对象")
+                             @RequestBody SendCodeRequest request,
+                             HttpServletRequest servletRequest) {
         //Redis缓存的key
         String captchaKey = getCaptchaKey(servletRequest);
         //Redis保存的验证码
@@ -78,6 +85,7 @@ public class NotifyController {
      * @param request
      * @param response
      */
+    @ApiOperation("获取图形验证码")
     @GetMapping("/getCaptcha")
     public void getCaptcha(HttpServletRequest request, HttpServletResponse response) {
 
