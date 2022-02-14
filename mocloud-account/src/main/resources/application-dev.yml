@@ -60,9 +60,9 @@ sms:
   template-id: M72CB42894
   url: https://jmsms.market.alicloudapi.com/sms/send
 #阿里云OSS配置
-aliyun:
-  oss:
-    endpoint: oss-cn-shenzhen.aliyuncs.com
-    access-key-id: LTAI5tPQHJvmvENFb5J8tUKG
-    access-key-secret: DNI7wU7HqeF9UUReByft5i8F7eJ6HX
-    bucketname: mo-short-link-account-service
+#aliyun:
+#  oss:
+#    endpoint: oss-cn-shenzhen.aliyuncs.com
+#    access-key-id: LTAI5tPQHJvmvENFb5J8tUKG
+#    access-key-secret: DNI7wU7HqeF9UUReByft5i8F7eJ6HX
+#    bucketname: mo-short-link-account-service
