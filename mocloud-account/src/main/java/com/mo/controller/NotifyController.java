@@ -133,7 +133,7 @@ public class NotifyController {
      *
      * @return
      */
-    @RequestMapping("/testSend")
+    @GetMapping("/testSend")
     public JsonData testSend() {
         notifyService.sendTest();
         return JsonData.buildSuccess();
