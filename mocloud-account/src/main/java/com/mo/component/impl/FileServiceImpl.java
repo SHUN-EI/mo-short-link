@@ -58,7 +58,7 @@ public class FileServiceImpl implements FileService {
         String extensionName = originalFilename.substring(originalFilename.lastIndexOf("."));
 
         //在oss上创建文件夹 user文件夹  user/2022/12/1/sdsfssdwfkshhk.jpg
-        String newFileName = "account/" + folder + fileName + extensionName;
+        String newFileName = "account/" + folder + "/" + fileName + extensionName;
 
         try {
             PutObjectResult result = ossClient.putObject(bucketname, newFileName, file.getInputStream());
