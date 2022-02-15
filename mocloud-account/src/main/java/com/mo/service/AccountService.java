@@ -1,5 +1,6 @@
 package com.mo.service;
 
+import com.mo.request.AccountLoginRequest;
 import com.mo.request.AccountRegisterRequest;
 import com.mo.utils.JsonData;
 
@@ -9,4 +10,6 @@ import com.mo.utils.JsonData;
 public interface AccountService {
 
     JsonData register(AccountRegisterRequest request);
+
+    JsonData login(AccountLoginRequest request);
 }

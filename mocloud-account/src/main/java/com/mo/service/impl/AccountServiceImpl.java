@@ -5,6 +5,8 @@ import com.mo.enums.BizCodeEnum;
 import com.mo.enums.SendCodeEnum;
 import com.mo.manager.AccountManager;
 import com.mo.model.AccountDO;
+import com.mo.model.LoginUserDTO;
+import com.mo.request.AccountLoginRequest;
 import com.mo.request.AccountRegisterRequest;
 import com.mo.service.AccountService;
 import com.mo.service.NotifyService;
@@ -18,6 +20,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 /**
  * Created by mo on 2022/2/14
@@ -75,6 +79,39 @@ public class AccountServiceImpl implements AccountService {
         return JsonData.buildSuccess(accountDO);
     }
 
+    /**
+     * 用户登录
+     *
+     * @param request
+     * @return
+     */
+    @Override
+    public JsonData login(AccountLoginRequest request) {
+        //根据phone去找有没有这记录
+
+        List<AccountDO> accountDOList = accountManager.findByPhone(request.getPhone());
+        if (accountDOList != null && accountDOList.size() == 1) {
+            //已注册
+            AccountDO accountDO = accountDOList.get(0);
+            String cryptPwd = Md5Crypt.md5Crypt(request.getPwd().getBytes(), accountDO.getSecret());
+
+            //用密钥+用户传递的明文密码，进行加密，与数据库的密码(密文)进行匹配
+            if (cryptPwd.equals(accountDO.getPwd())) {
+                //登录成功,生成token
+                LoginUserDTO loginUserDTO = LoginUserDTO.builder().build();
+                BeanUtils.copyProperties(accountDO, loginUserDTO);
+
+                return JsonData.buildSuccess(loginUserDTO);
+
+            } else {
+                return JsonData.buildResult(BizCodeEnum.ACCOUNT_PWD_ERROR);
+            }
+
+        } else {
+            //未注册
+            return JsonData.buildResult(BizCodeEnum.ACCOUNT_UNREGISTER);
+        }
+    }
 
     /**
      * 新用户注册，初始化福利信息

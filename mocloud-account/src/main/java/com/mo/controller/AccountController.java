@@ -3,6 +3,7 @@ package com.mo.controller;
 import com.alibaba.fastjson.JSON;
 import com.mo.component.FileService;
 import com.mo.enums.BizCodeEnum;
+import com.mo.request.AccountLoginRequest;
 import com.mo.request.AccountRegisterRequest;
 import com.mo.service.AccountService;
 import com.mo.utils.JsonData;
@@ -41,6 +42,13 @@ public class AccountController {
     public JsonData register(@ApiParam("用户注册对象") @RequestBody AccountRegisterRequest request) {
 
         JsonData jsonData = accountService.register(request);
+        return jsonData.buildSuccess(jsonData);
+    }
+
+    @ApiOperation("用户登录")
+    @PostMapping("/login")
+    public JsonData login(@ApiParam("用户登录对象") @RequestBody AccountLoginRequest request) {
+        JsonData jsonData = accountService.login(request);
         return jsonData.buildSuccess(jsonData);
     }
 
