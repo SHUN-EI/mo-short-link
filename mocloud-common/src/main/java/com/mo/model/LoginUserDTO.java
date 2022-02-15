@@ -1,5 +1,6 @@
 package com.mo.model;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Builder;
 import lombok.Data;
 
@@ -19,7 +20,7 @@ public class LoginUserDTO {
     /**
      * 账号
      */
-    private long accountNo;
+    private Long accountNo;
 
     /**
      * 用户名
@@ -29,6 +30,7 @@ public class LoginUserDTO {
     /**
      * 头像
      */
+    //@JsonProperty("head_img")
     private String headImg;
 
     /**
@@ -45,4 +47,18 @@ public class LoginUserDTO {
      * 认证级别
      */
     private String auth;
+
+    public LoginUserDTO() {
+    }
+
+    public LoginUserDTO(Long id, Long accountNo, String username, String headImg, String mail, String phone, String auth) {
+        this.id = id;
+        this.accountNo = accountNo;
+        this.username = username;
+        this.headImg = headImg;
+        this.mail = mail;
+        this.phone = phone;
+        this.auth = auth;
+
+    }
 }
