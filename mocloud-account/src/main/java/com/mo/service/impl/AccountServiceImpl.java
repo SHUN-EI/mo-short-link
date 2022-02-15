@@ -11,6 +11,7 @@ import com.mo.request.AccountRegisterRequest;
 import com.mo.service.AccountService;
 import com.mo.service.NotifyService;
 import com.mo.utils.CommonUtil;
+import com.mo.utils.IDUtil;
 import com.mo.utils.JWTUtil;
 import com.mo.utils.JsonData;
 import lombok.extern.slf4j.Slf4j;
@@ -62,8 +63,8 @@ public class AccountServiceImpl implements AccountService {
         BeanUtils.copyProperties(request, accountDO);
         accountDO.setAuth(AuthTypeEnum.DEFAULT.name());
 
-        //生成唯一的账号  TODO
-        accountDO.setAccountNo(CommonUtil.getCurrentTimestamp());
+        //生成唯一的账号  IDUtil.geneSnowFlakeID()
+        accountDO.setAccountNo(Long.valueOf(IDUtil.geneSnowFlakeID().toString()));
 
         //生成用户密码的密钥，盐
         accountDO.setSecret("$1$" + CommonUtil.getStringNumRandom(8));
