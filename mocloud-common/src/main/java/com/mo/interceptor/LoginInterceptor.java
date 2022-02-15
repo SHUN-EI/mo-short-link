@@ -27,6 +27,7 @@ public class LoginInterceptor implements HandlerInterceptor {
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
+        //放行OPTIONS方法，前后端分离情况下，会有些OPTIONS方法来试探网络
         if (HttpMethod.OPTIONS.toString().equalsIgnoreCase(request.getMethod())) {
             response.setStatus(HttpStatus.NO_CONTENT.value());
             return true;
