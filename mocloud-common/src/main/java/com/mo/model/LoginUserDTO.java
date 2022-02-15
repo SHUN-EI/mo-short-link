@@ -12,6 +12,11 @@ import lombok.Data;
 public class LoginUserDTO {
 
     /**
+     * 账号id(主键)
+     */
+    private Long id;
+
+    /**
      * 账号
      */
     private long accountNo;

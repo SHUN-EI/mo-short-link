@@ -202,5 +202,11 @@
             <version>6.0.8.Final</version>
         </dependency>
 
+        <!-- JWT相关 -->
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt</artifactId>
+        </dependency>
+
     </dependencies>
 </project>

@@ -11,6 +11,7 @@ import com.mo.request.AccountRegisterRequest;
 import com.mo.service.AccountService;
 import com.mo.service.NotifyService;
 import com.mo.utils.CommonUtil;
+import com.mo.utils.JWTUtil;
 import com.mo.utils.JsonData;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.digest.Md5Crypt;
@@ -101,7 +102,9 @@ public class AccountServiceImpl implements AccountService {
                 LoginUserDTO loginUserDTO = LoginUserDTO.builder().build();
                 BeanUtils.copyProperties(accountDO, loginUserDTO);
 
-                return JsonData.buildSuccess(loginUserDTO);
+                String token = JWTUtil.generateJsonWebToken(loginUserDTO);
+
+                return JsonData.buildSuccess(token);
 
             } else {
                 return JsonData.buildResult(BizCodeEnum.ACCOUNT_PWD_ERROR);
