@@ -27,6 +27,18 @@ spring:
         minPoolSize: 50
         username: root
         password: mo12345
+    sharding:
+      tables:
+        link_group:
+          #id生成策略
+          key-generator:
+            column: id
+            props:
+              worker:
+                id: ${workId}
+            #id生成策略
+            type: SNOWFLAKE
+
 
   redis: #Redis配置
     client-type: jedis

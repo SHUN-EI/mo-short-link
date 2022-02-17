@@ -57,6 +57,6 @@ public class LinkGroupServiceImpl implements LinkGroupService {
 
         int rows = linkGroupManager.add(linkGroupDO);
 
-        return rows == 1 ? JsonData.buildSuccess() : JsonData.buildResult(BizCodeEnum.GROUP_ADD_FAIL);
+        return rows == 1 ? JsonData.buildSuccess(linkGroupDO.toString()) : JsonData.buildResult(BizCodeEnum.GROUP_ADD_FAIL);
     }
 }
