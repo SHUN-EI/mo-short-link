@@ -1,5 +1,6 @@
 package com.mo.utils;
 
+import com.google.common.hash.Hashing;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.servlet.http.HttpServletRequest;
@@ -204,4 +205,47 @@ public class CommonUtil {
         }
 
     }
+
+    /**
+     * murmurhash算法-Guava框架里面
+     *
+     * @param param
+     * @return
+     */
+    public static long murmurHash32(String param) {
+        long murmurHash32 = Hashing.murmur3_32().hashUnencodedChars(param).padToLong();
+        return murmurHash32;
+    }
+
+    /**
+     * 62个字符
+     */
+    private static final String CHARS = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+
+    /**
+     * 10进制转62进制
+     *
+     * @param num
+     * @return 为什么要用62进制转换, 不是64进制？
+     * <p>
+     * 62进制转换是因为62进制转换后只含数字+小写+大写字母
+     * 而64进制转换会含有/、+这样的符号（不符合正常URL的字符）
+     * 10进制转62进制可以缩短字符，如果我们要6位字符的话，已经有560亿个组合了
+     */
+    public static String encodeToBase62(long num) {
+
+        // StringBuffer线程安全，StringBuilder线程不安全
+        StringBuffer sb = new StringBuffer();
+        do {
+            int i = (int) (num % 62);
+            sb.append(CHARS.charAt(i));
+            num = num / 62;
+        } while (num > 0);
+
+        String value = sb.reverse().toString();
+        return value;
+
+    }
+
+
 }

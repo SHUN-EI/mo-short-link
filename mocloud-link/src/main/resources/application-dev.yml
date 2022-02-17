@@ -1,0 +1,62 @@
+server:
+  port: 9002
+spring:
+  application:
+    name: mocloud-link
+  cloud:
+    nacos: #注册中心地址
+      discovery:
+        server-addr: 39.108.182.26:8848
+        username: nacos
+        password: nacos
+  shardingsphere:
+    props:
+      sql:
+        show: true # 打印执行的数据库以及语句
+    datasource:
+      names: ds0 #数据源 ds0
+      ds0:
+        driver-class-name: com.mysql.cj.jdbc.Driver
+        jdbc-url: jdbc:mysql://39.108.182.26:3306/msl_account?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
+        connectionTimeoutMilliseconds: 30000
+        idleTimeoutMilliseconds: 60000
+        maintenanceIntervalMilliseconds: 30000
+        maxLifetimeMilliseconds: 1800000
+        type: com.zaxxer.hikari.HikariDataSource
+        maxPoolSize: 50
+        minPoolSize: 50
+        username: root
+        password: mo12345
+
+  redis: #Redis配置
+    client-type: jedis
+    host: 39.108.182.26
+    password: 123456
+    port: 8000
+  #    jedis:
+  #      pool:
+  #        # 连接池最大连接数（使用负值表示没有限制）
+  #        max-active: 100
+  #        # 连接池中的最大空闲连接
+  #        max-idle: 100
+  #        # 连接池中的最小空闲连接
+  #        min-idle: 100
+  #        # 连接池最大阻塞等待时间（使用负值表示没有限制）
+  #        max-wait: 60000
+#  flyway:
+#    enabled: true
+#    encoding: utf-8
+#    locations: classpath:db/migration #迁移脚本的位置，默认db/migration
+#    baseline-on-migrate: true #当迁移时发现目标schema非空，而且带有没有元数据的表时，是否自动执行基准迁移，默认false
+#    out-of-order: true #是否允许无序的迁移，默认false
+#    table: flyway_schema_version_history
+
+#配置plus打印sql日志
+#mybatis-plus:
+#  configuration:
+#    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+
+#设置日志级别,ERROR/WARN/INFO/DEBUG,默认是INFO以上才显示
+logging:
+  level:
+    root: INFO
