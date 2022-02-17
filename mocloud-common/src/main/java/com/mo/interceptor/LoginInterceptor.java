@@ -65,7 +65,7 @@ public class LoginInterceptor implements HandlerInterceptor {
             return true;
         }
 
-        //token为空
+        //token为空，后端提示前端，用户还没登录
         CommonUtil.sendJsonMessage(response, JsonData.buildResult(BizCodeEnum.ACCOUNT_UNLOGIN));
         return false;
     }
