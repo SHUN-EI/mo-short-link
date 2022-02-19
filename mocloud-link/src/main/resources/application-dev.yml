@@ -14,10 +14,34 @@ spring:
       sql:
         show: true # 打印执行的数据库以及语句
     datasource:
-      names: ds0 #数据源 ds0
+      names: ds0,ds1,dsa #数据源 ds0
       ds0:
         driver-class-name: com.mysql.cj.jdbc.Driver
-        jdbc-url: jdbc:mysql://39.108.182.26:3306/msl_link?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
+        jdbc-url: jdbc:mysql://39.108.182.26:3306/msl_link_0?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
+        connectionTimeoutMilliseconds: 30000
+        idleTimeoutMilliseconds: 60000
+        maintenanceIntervalMilliseconds: 30000
+        maxLifetimeMilliseconds: 1800000
+        type: com.zaxxer.hikari.HikariDataSource
+        maxPoolSize: 50
+        minPoolSize: 50
+        username: root
+        password: mo12345
+      ds1:
+        driver-class-name: com.mysql.cj.jdbc.Driver
+        jdbc-url: jdbc:mysql://39.108.182.26:3306/msl_link_1?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
+        connectionTimeoutMilliseconds: 30000
+        idleTimeoutMilliseconds: 60000
+        maintenanceIntervalMilliseconds: 30000
+        maxLifetimeMilliseconds: 1800000
+        type: com.zaxxer.hikari.HikariDataSource
+        maxPoolSize: 50
+        minPoolSize: 50
+        username: root
+        password: mo12345
+      dsa:
+        driver-class-name: com.mysql.cj.jdbc.Driver
+        jdbc-url: jdbc:mysql://39.108.182.26:3306/msl_link_a?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
         connectionTimeoutMilliseconds: 30000
         idleTimeoutMilliseconds: 60000
         maintenanceIntervalMilliseconds: 30000
@@ -30,6 +54,11 @@ spring:
     sharding:
       tables:
         link_group:
+          #配置分库策略
+          database-strategy:
+            inline:
+              sharding-column: account_no
+              algorithm-expression: ds$->{account_no % 2}
           #id生成策略
           key-generator:
             column: id
@@ -38,7 +67,26 @@ spring:
                 id: ${workId}
             #id生成策略
             type: SNOWFLAKE
-
+        short_link:
+          #数据节点
+          actual-data-nodes: ds0.short_link,ds1.short_link,dsa.short_link
+          #配置分库策略，水平分库，自定义精准算法
+          database-strategy:
+            standard:
+              sharding-column: code #分片键为短链压缩码
+              precise-algorithm-class-name: com.mo.strategy.CustomDBPreciseShardingAlgorithm
+          table-strategy:
+            standard:
+              sharding-column: code
+              precise-algorithm-class-name: com.mo.strategy.CustomTablePreciseShardingAlgorithm
+          #id生成策略
+          key-generator:
+            column: id
+            props:
+              worker:
+                id: ${workId}
+            #id生成策略
+            type: SNOWFLAKE
 
   redis: #Redis配置
     client-type: jedis
