@@ -6,6 +6,9 @@ import com.mo.component.ShortLinkService;
 import com.mo.manager.ShortLinkManager;
 import com.mo.mapper.ShortLinkMapper;
 import com.mo.model.ShortLinkDO;
+import com.mo.strategy.ShardingDBConfig;
+import com.mo.strategy.ShardingDBWeightConfig;
+import com.mo.strategy.ShardingTableConfig;
 import com.mo.utils.CommonUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
@@ -30,11 +33,37 @@ public class ShortLinkTest {
     private ShortLinkManager shortLinkManager;
 
     /**
+     * 测试生成短链码-权重
+     */
+    @Test
+    public void testCreatShortLinkCodeWeight() {
+        Random random = new Random();
+        for (int i = 0; i < 10; i++) {
+            int num1 = random.nextInt(10);
+            int num2 = random.nextInt(10000000);
+            int num3 = random.nextInt(10000000);
+
+            String originalUrl = num1 + "mo" + num2 + ".com" + num3;
+
+            long murmurHash32 = CommonUtil.murmurHash32(originalUrl);
+            //进制转换 10进制转62进制
+            String code = CommonUtil.encodeToBase62(murmurHash32);
+
+            //短链码:A92AEva1,设计规定第一位为数据库位,最后一位为数据表位
+            String shortLinkCode = ShardingDBWeightConfig.getRandomDBPrefix() + code + ShardingTableConfig.getRandomTableSuffix();
+
+
+            //String shortLinkCode = shortLinkService.createShortLinkCode(originalUrl);
+            log.info("DBWeight加权后的库位是:" + ShardingDBWeightConfig.getRandomDBPrefix() + ", shortLinkCode=" + shortLinkCode);
+        }
+    }
+
+    /**
      * 查找短链
      */
     @Test
     public void testFindByShortLinCode() {
-        ShortLinkDO shortLinkDO = shortLinkManager.findByShortLinCode("");
+        ShortLinkDO shortLinkDO = shortLinkManager.findByShortLinCode("03LK6Yla");
         log.info("ShortLink:" + shortLinkDO.toString());
     }
 

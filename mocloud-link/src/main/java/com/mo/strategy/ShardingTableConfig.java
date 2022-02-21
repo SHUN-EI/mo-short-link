@@ -24,7 +24,7 @@ public class ShardingTableConfig {
     }
 
     /**
-     * 获取随机的后缀
+     * 获取随机数据表的后缀
      *
      * @return
      */
