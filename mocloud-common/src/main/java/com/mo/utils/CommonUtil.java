@@ -248,4 +248,17 @@ public class CommonUtil {
     }
 
 
+    /**
+     * 判断短链码是否合规
+     * 仅包括数字和字母
+     *
+     * @param str
+     * @return
+     */
+    public static Boolean isLetterDigit(String str) {
+        String regex = "^[a-z0-9A-Z]+$";
+        return str.matches(regex);
+
+    }
+
 }

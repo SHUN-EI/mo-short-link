@@ -2,11 +2,9 @@ package com.mo.biz;
 
 import com.google.common.hash.Hashing;
 import com.mo.LinkApplication;
-import com.mo.component.ShortLinkService;
 import com.mo.manager.ShortLinkManager;
-import com.mo.mapper.ShortLinkMapper;
 import com.mo.model.ShortLinkDO;
-import com.mo.strategy.ShardingDBConfig;
+import com.mo.service.ShortLinkService;
 import com.mo.strategy.ShardingDBWeightConfig;
 import com.mo.strategy.ShardingTableConfig;
 import com.mo.utils.CommonUtil;
