@@ -121,9 +121,33 @@ spring:
     baseline-on-migrate: true #当迁移时发现目标schema非空，而且带有没有元数据的表时，是否自动执行基准迁移，默认false
     out-of-order: true #是否允许无序的迁移，默认false
     table: flyway_schema_version_history
+  rabbitmq:   #消息队列
+    host: 39.108.182.26
+    port: 5672
+    virtual-host: /
+    username: admin
+    password: mo12345
+    listener:  #开启手动确认消息
+      simple:
+        acknowledge-mode: manual
 
 
 #设置日志级别,ERROR/WARN/INFO/DEBUG,默认是INFO以上才显示
 logging:
   level:
     root: INFO
+
+#自定义消息队列配置，发送锁定库存消息-》延迟exchange-》lock.queue-》死信exchange-》release.queue
+mqconfig:
+  #交换机
+  short_link_event_exchange: short_link.event.exchange
+  #新增短链 队列,用于link
+  short_link_add_link_queue: short_link.add.link.queue
+  #新增短链映射 队列,用于 mapping
+  short_link_add_mapping_queue: short_link.add.mapping.queue
+  #新增短链具体的routingKey,【发送消息使用】
+  short_link_add_routing_key: short_link.add.link.mapping.routing.key
+  #topic类型的binding key，用于绑定队列和交换机，是用于 link 消费者
+  short_link_add_link_binding_key: short_link.add.link.*.routing.key
+  #topic类型的binding key，用于绑定队列和交换机，是用于 mapping 消费者
+  short_link_add_mapping_binding_key: short_link.add.*.mapping.routing.key
