@@ -18,12 +18,12 @@ import lombok.EqualsAndHashCode;
  */
 @Data
 @EqualsAndHashCode(callSuper = false)
-@TableName("group_code_mapping_0")
+@TableName("group_code_mapping")
 public class GroupCodeMappingDO implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-      @TableId(value = "id", type = IdType.AUTO)
+      //@TableId(value = "id", type = IdType.AUTO)
     private Long id;
 
     /**

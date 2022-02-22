@@ -19,7 +19,7 @@ public class LinkGroupManagerImpl implements LinkGroupManager {
     private LinkGroupMapper linkGroupMapper;
 
     @Override
-    public int update(LinkGroupDO linkGroupDO) {
+    public Integer update(LinkGroupDO linkGroupDO) {
 
         return linkGroupMapper.update(linkGroupDO, new QueryWrapper<LinkGroupDO>().eq("id", linkGroupDO.getId()).eq("account_no", linkGroupDO.getAccountNo()));
     }
@@ -37,13 +37,13 @@ public class LinkGroupManagerImpl implements LinkGroupManager {
     }
 
     @Override
-    public int del(Long groupId, Long accountNo) {
+    public Integer del(Long groupId, Long accountNo) {
 
         return linkGroupMapper.delete(new QueryWrapper<LinkGroupDO>().eq("id", groupId).eq("account_no", accountNo));
     }
 
     @Override
-    public int add(LinkGroupDO linkGroupDO) {
+    public Integer add(LinkGroupDO linkGroupDO) {
         return linkGroupMapper.insert(linkGroupDO);
     }
 }

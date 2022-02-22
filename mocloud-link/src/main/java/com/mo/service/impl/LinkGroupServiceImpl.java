@@ -47,7 +47,7 @@ public class LinkGroupServiceImpl implements LinkGroupService {
         linkGroupDO.setId(request.getId());
         linkGroupDO.setAccountNo(loginUserDTO.getAccountNo());
 
-        int rows = linkGroupManager.update(linkGroupDO);
+        Integer rows = linkGroupManager.update(linkGroupDO);
 
         return rows == 1 ? JsonData.buildSuccess(linkGroupDO.toString()) : JsonData.buildResult(BizCodeEnum.GROUP_OPER_FAIL);
     }
@@ -104,7 +104,7 @@ public class LinkGroupServiceImpl implements LinkGroupService {
         LoginUserDTO loginUserDTO = LoginInterceptor.threadLocal.get();
 
         //accountNo，账号唯一标识，防止越权删除
-        int rows = linkGroupManager.del(request.getId(), loginUserDTO.getAccountNo());
+        Integer rows = linkGroupManager.del(request.getId(), loginUserDTO.getAccountNo());
 
         return rows == 1 ? JsonData.buildSuccess() : JsonData.buildResult(BizCodeEnum.GROUP_NOT_EXIST);
     }
@@ -122,7 +122,7 @@ public class LinkGroupServiceImpl implements LinkGroupService {
         linkGroupDO.setTitle(request.getTitle());
         linkGroupDO.setAccountNo(loginUserDTO.getAccountNo());
 
-        int rows = linkGroupManager.add(linkGroupDO);
+        Integer rows = linkGroupManager.add(linkGroupDO);
 
         return rows == 1 ? JsonData.buildSuccess(linkGroupDO.toString()) : JsonData.buildResult(BizCodeEnum.GROUP_ADD_FAIL);
     }

@@ -17,7 +17,7 @@ public class ShortLinkManagerImpl implements ShortLinkManager {
     private ShortLinkMapper shortLinkMapper;
 
     @Override
-    public int addShortLink(ShortLinkDO shortLinkDO) {
+    public Integer addShortLink(ShortLinkDO shortLinkDO) {
 
         return shortLinkMapper.insert(shortLinkDO);
     }
@@ -36,7 +36,7 @@ public class ShortLinkManagerImpl implements ShortLinkManager {
      * @return
      */
     @Override
-    public int del(String shortLinkCode, Long accountNo) {
+    public Integer del(String shortLinkCode, Long accountNo) {
 
         ShortLinkDO shortLinkDO = new ShortLinkDO();
         shortLinkDO.setDel(1);

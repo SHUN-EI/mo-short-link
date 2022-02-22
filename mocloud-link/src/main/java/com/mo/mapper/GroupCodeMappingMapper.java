@@ -1,7 +1,7 @@
 package com.mo.mapper;
 
-import com.mo.model.GroupCodeMapping0DO;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.mo.model.GroupCodeMappingDO;
 
 /**
  * <p>
@@ -11,6 +11,6 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
  * @author mo
  * @since 2022-02-22
  */
-public interface GroupCodeMappingMapper extends BaseMapper<GroupCodeMapping0DO> {
+public interface GroupCodeMappingMapper extends BaseMapper<GroupCodeMappingDO> {
 
 }

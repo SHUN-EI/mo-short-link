@@ -9,13 +9,13 @@ import java.util.List;
  */
 public interface LinkGroupManager {
 
-    int add(LinkGroupDO linkGroupDO);
+    Integer add(LinkGroupDO linkGroupDO);
 
-    int del(Long groupId, Long accountNo);
+    Integer del(Long groupId, Long accountNo);
 
     LinkGroupDO detail(Long id, Long accountNo);
 
     List<LinkGroupDO> findAccountAllLinkGroup(Long accountNo);
 
-    int update(LinkGroupDO linkGroupDO);
+    Integer update(LinkGroupDO linkGroupDO);
 }

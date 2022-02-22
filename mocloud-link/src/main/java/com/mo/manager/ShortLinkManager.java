@@ -7,10 +7,10 @@ import com.mo.model.ShortLinkDO;
  */
 public interface ShortLinkManager {
 
-    int addShortLink(ShortLinkDO shortLinkDO);
+    Integer addShortLink(ShortLinkDO shortLinkDO);
 
     ShortLinkDO findByShortLinCode(String shortLinkCode);
 
-    int del(String shortLinkCode,Long accountNo);
+    Integer del(String shortLinkCode,Long accountNo);
 
 }
