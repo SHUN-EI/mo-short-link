@@ -4,6 +4,7 @@ import com.mo.enums.ShortLinkStateEnum;
 import com.mo.service.ShortLinkService;
 import com.mo.utils.CommonUtil;
 import com.mo.vo.ShortLinkVO;
+import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +19,7 @@ import javax.servlet.http.HttpServletResponse;
 /**
  * Created by mo on 2022/2/21
  */
+@Api(tags = "短链模块")
 @RestController
 @Slf4j
 public class LinkApiController {
