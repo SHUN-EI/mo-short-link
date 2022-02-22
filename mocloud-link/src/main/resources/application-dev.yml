@@ -52,6 +52,13 @@ spring:
         username: root
         password: mo12345
     sharding:
+      default-data-source-name: ds0
+      default-key-generator: #默认的id生成策略
+        column: id
+        props:
+          worker:
+            id: ${workId}
+        type: SNOWFLAKE
       tables:
         link_group:
           #配置分库策略
