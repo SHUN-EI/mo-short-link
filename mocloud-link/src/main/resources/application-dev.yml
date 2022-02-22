@@ -87,6 +87,10 @@ spring:
                 id: ${workId}
             #id生成策略
             type: SNOWFLAKE
+        group_code_mapping:
+          #数据节点
+          actual-data-nodes: ds0.group_code_mapping,ds1.group_code_mapping
+
 
   redis: #Redis配置
     client-type: jedis
