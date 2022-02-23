@@ -1,13 +1,23 @@
 package com.mo.service.impl;
 
+import com.mo.config.RabbitMQConfig;
+import com.mo.enums.EventMessageTypeEnum;
+import com.mo.interceptor.LoginInterceptor;
 import com.mo.manager.ShortLinkManager;
+import com.mo.model.EventMessage;
+import com.mo.model.LoginUserDTO;
 import com.mo.model.ShortLinkDO;
+import com.mo.request.ShortLinkAddRequest;
 import com.mo.service.ShortLinkService;
 import com.mo.strategy.ShardingDBConfig;
 import com.mo.strategy.ShardingTableConfig;
 import com.mo.utils.CommonUtil;
+import com.mo.utils.IDUtil;
+import com.mo.utils.JsonData;
+import com.mo.utils.JsonUtil;
 import com.mo.vo.ShortLinkVO;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -21,6 +31,34 @@ public class ShortLinkServiceImpl implements ShortLinkService {
 
     @Autowired
     private ShortLinkManager shortLinkManager;
+    @Autowired
+    private RabbitTemplate rabbitTemplate;
+    @Autowired
+    private RabbitMQConfig rabbitMQConfig;
+
+    /**
+     * 创建短链
+     *
+     * @param request
+     * @return
+     */
+    @Override
+    public JsonData createShortLink(ShortLinkAddRequest request) {
+
+        LoginUserDTO loginUserDTO = LoginInterceptor.threadLocal.get();
+
+        EventMessage eventMessage = EventMessage.builder()
+                .accountNo(loginUserDTO.getAccountNo())
+                .content(JsonUtil.obj2Json(request))
+                .messageId(IDUtil.geneSnowFlakeID().toString())
+                .eventMessageType(EventMessageTypeEnum.SHORT_LINK_ADD.name())
+                .build();
+
+        //发送消息
+        rabbitTemplate.convertAndSend(rabbitMQConfig.getShortLinkEventExchange(), rabbitMQConfig.getShortLinkAddRoutingKey(), eventMessage);
+
+        return JsonData.buildSuccess();
+    }
 
     /**
      * 根据短链码解析短链

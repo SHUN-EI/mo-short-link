@@ -1,6 +1,9 @@
 package com.mo.model;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
 
@@ -8,6 +11,9 @@ import java.io.Serializable;
  * Created by mo on 2022/2/23
  * RabbitMQ 消息对象
  */
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
 @Data
 public class EventMessage implements Serializable {
 

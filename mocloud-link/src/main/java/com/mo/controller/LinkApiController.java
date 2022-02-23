@@ -19,7 +19,6 @@ import javax.servlet.http.HttpServletResponse;
 /**
  * Created by mo on 2022/2/21
  */
-@Api(tags = "短链模块")
 @RestController
 @Slf4j
 public class LinkApiController {
