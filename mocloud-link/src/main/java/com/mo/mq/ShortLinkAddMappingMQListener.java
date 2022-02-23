@@ -1,5 +1,7 @@
 package com.mo.mq;
 
+import com.mo.enums.BizCodeEnum;
+import com.mo.exception.BizException;
 import com.mo.model.EventMessage;
 import com.rabbitmq.client.Channel;
 import lombok.extern.slf4j.Slf4j;
@@ -24,14 +26,16 @@ public class ShortLinkAddMappingMQListener {
 
         try {
             //TODO 处理业务逻辑
+            //模拟消息消费失败，触发重试次数
 
-            log.info("消费成功:{}",eventMessage);
+            log.info("消费成功:{}", eventMessage);
             //确认消息消费成功
-            channel.basicAck(deliveryTag,false);
+            //channel.basicAck(deliveryTag,false);
 
         } catch (Exception e) {
             //处理业务异常，还有进行其他操作，比如记录失败原因
-            log.error("消费失败:{}",eventMessage);
+            log.error("消费失败:{}", eventMessage);
+            throw new BizException(BizCodeEnum.MQ_CONSUME_EXCEPTION);
         }
     }
 
