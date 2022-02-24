@@ -1,5 +1,6 @@
 package com.mo.service;
 
+import com.mo.model.EventMessage;
 import com.mo.request.ShortLinkAddRequest;
 import com.mo.utils.JsonData;
 import com.mo.vo.ShortLinkVO;
@@ -14,4 +15,6 @@ public interface ShortLinkService {
     ShortLinkVO parseShortLinkCode(String shortLinkCode);
 
     JsonData createShortLink(ShortLinkAddRequest request);
+
+    void handlerAddShortLink(EventMessage eventMessage);
 }
