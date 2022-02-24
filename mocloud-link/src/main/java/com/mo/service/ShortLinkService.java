@@ -16,5 +16,5 @@ public interface ShortLinkService {
 
     JsonData createShortLink(ShortLinkAddRequest request);
 
-    void handlerAddShortLink(EventMessage eventMessage);
+    Boolean handlerAddShortLink(EventMessage eventMessage);
 }

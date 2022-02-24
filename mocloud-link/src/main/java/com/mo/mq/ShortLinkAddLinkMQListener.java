@@ -32,7 +32,7 @@ public class ShortLinkAddLinkMQListener {
         long deliveryTag = message.getMessageProperties().getDeliveryTag();
 
         try {
-            // 处理业务逻辑
+            //处理业务逻辑
             eventMessage.setEventMessageType(EventMessageTypeEnum.SHORT_LINK_ADD_LINK.name());
             shortLinkService.handlerAddShortLink(eventMessage);
 

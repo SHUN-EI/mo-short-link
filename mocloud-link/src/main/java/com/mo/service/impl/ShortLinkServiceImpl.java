@@ -6,6 +6,7 @@ import com.mo.enums.EventMessageTypeEnum;
 import com.mo.enums.ShortLinkStateEnum;
 import com.mo.interceptor.LoginInterceptor;
 import com.mo.manager.DomainManager;
+import com.mo.manager.GroupCodeMappingManager;
 import com.mo.manager.LinkGroupManager;
 import com.mo.manager.ShortLinkManager;
 import com.mo.model.*;
@@ -44,6 +45,8 @@ public class ShortLinkServiceImpl implements ShortLinkService {
     private DomainManager domainManager;
     @Autowired
     private LinkGroupManager linkGroupManager;
+    @Autowired
+    private GroupCodeMappingManager groupCodeMappingManager;
 
 
     /**
@@ -53,7 +56,7 @@ public class ShortLinkServiceImpl implements ShortLinkService {
      */
     @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
     @Override
-    public void handlerAddShortLink(EventMessage eventMessage) {
+    public Boolean handlerAddShortLink(EventMessage eventMessage) {
 
         Long accountNo = eventMessage.getAccountNo();
         String eventMessageType = eventMessage.getEventMessageType();
@@ -71,22 +74,51 @@ public class ShortLinkServiceImpl implements ShortLinkService {
 
         //TODO 加锁
 
-        ShortLinkDO shortLinkDO = ShortLinkDO.builder()
-                .accountNo(accountNo)
-                .code(shortLinkCode)
-                .title(request.getTitle())
-                .originalUrl(request.getOriginalUrl())
-                .domain(domainDO.getValue())
-                .groupId(linkGroupDO.getId())
-                .expired(request.getExpired())
-                .sign(originalUrlDigest)
-                .state(ShortLinkStateEnum.ACTIVE.name())
-                .del(0)
-                .build();
+        //先判断是否短链码被占用
+        ShortLinkDO shortLinCodeInDB = shortLinkManager.findByShortLinCode(shortLinkCode);
+        if (null == shortLinCodeInDB) {
 
-        //保存
-        shortLinkManager.addShortLink(shortLinkDO);
+            if (EventMessageTypeEnum.SHORT_LINK_ADD_LINK.name().equalsIgnoreCase(eventMessageType)) {
+                //C端处理
+                ShortLinkDO shortLinkDO = ShortLinkDO.builder()
+                        .accountNo(accountNo)
+                        .code(shortLinkCode)
+                        .title(request.getTitle())
+                        .originalUrl(request.getOriginalUrl())
+                        .domain(domainDO.getValue())
+                        .groupId(linkGroupDO.getId())
+                        .expired(request.getExpired())
+                        .sign(originalUrlDigest)
+                        .state(ShortLinkStateEnum.ACTIVE.name())
+                        .del(0)
+                        .build();
 
+                //保存
+                shortLinkManager.addShortLink(shortLinkDO);
+                return true;
+
+            } else if (EventMessageTypeEnum.SHORT_LINK_ADD_MAPPING.name().equalsIgnoreCase(eventMessageType)) {
+                //B端处理
+                GroupCodeMappingDO codeMappingDO = GroupCodeMappingDO.builder()
+                        .accountNo(accountNo)
+                        .code(shortLinkCode)
+                        .title(request.getTitle())
+                        .originalUrl(request.getOriginalUrl())
+                        .domain(domainDO.getValue())
+                        .groupId(linkGroupDO.getId())
+                        .expired(request.getExpired())
+                        .sign(originalUrlDigest)
+                        .state(ShortLinkStateEnum.ACTIVE.name())
+                        .del(0)
+                        .build();
+
+                //保存
+                groupCodeMappingManager.add(codeMappingDO);
+                return true;
+            }
+
+        }
+        return false;
     }
 
     /**

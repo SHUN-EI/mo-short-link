@@ -1,13 +1,16 @@
 package com.mo.mq;
 
 import com.mo.enums.BizCodeEnum;
+import com.mo.enums.EventMessageTypeEnum;
 import com.mo.exception.BizException;
 import com.mo.model.EventMessage;
+import com.mo.service.ShortLinkService;
 import com.rabbitmq.client.Channel;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.core.Message;
 import org.springframework.amqp.rabbit.annotation.RabbitHandler;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 /**
@@ -18,6 +21,9 @@ import org.springframework.stereotype.Component;
 @Slf4j
 public class ShortLinkAddMappingMQListener {
 
+    @Autowired
+    private ShortLinkService shortLinkService;
+
     @RabbitHandler
     public void shortLinkHandler(EventMessage eventMessage, Message message, Channel channel) {
 
@@ -25,7 +31,9 @@ public class ShortLinkAddMappingMQListener {
         long deliveryTag = message.getMessageProperties().getDeliveryTag();
 
         try {
-            //TODO 处理业务逻辑
+            //处理业务逻辑
+            eventMessage.setEventMessageType(EventMessageTypeEnum.SHORT_LINK_ADD_MAPPING.name());
+            shortLinkService.handlerAddShortLink(eventMessage);
             //模拟消息消费失败，触发重试次数
 
             log.info("消费成功:{}", eventMessage);
