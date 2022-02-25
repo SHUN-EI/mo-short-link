@@ -132,6 +132,11 @@ public class ShortLinkServiceImpl implements ShortLinkService {
 
         LoginUserDTO loginUserDTO = LoginInterceptor.threadLocal.get();
 
+        //URL增加前缀,保证原始url 能生成唯一的不同的短链码
+        //拼接后 1469558440337604610&https://xdclass.net
+        String newOriginalUrl = CommonUtil.addUrlPrefix(request.getOriginalUrl());
+        request.setOriginalUrl(newOriginalUrl);
+
         EventMessage eventMessage = EventMessage.builder()
                 .accountNo(loginUserDTO.getAccountNo())
                 .content(JsonUtil.obj2Json(request))

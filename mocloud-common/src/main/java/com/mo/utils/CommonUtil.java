@@ -261,4 +261,57 @@ public class CommonUtil {
 
     }
 
+    /**
+     * URL增加前缀
+     * 原生 https://xdclass.net
+     * 拼接后 1469558440337604610&https://xdclass.net
+     * 如果冲突，则编号递增1
+     *
+     * @param url
+     * @return
+     */
+    public static String addUrlPrefix(String url) {
+        return IDUtil.geneSnowFlakeID() + "&" + url;
+    }
+
+    /**
+     * 移除URL前缀
+     *
+     * @param url
+     * @return
+     */
+    public static String removeUrlPrefix(String url) {
+
+        int index = url.indexOf("&");
+        String originalUrl = url.substring(index + 1);
+        return originalUrl;
+    }
+
+    /**
+     * 如果短链码重复，则调用这个方法
+     * url前缀的编号,递增1
+     * 如果还是用雪花算法，则容易C端和B端不一致，所以采用编号递增1的方式
+     * <p>
+     * 123132432212&https://xdclass.net/download.html
+     *
+     * @param url
+     * @return
+     */
+    public static String addUrlPrefixVersion(String url) {
+        int index = url.indexOf("&");
+
+        //截取前半段的id
+        String version = url.substring(0, index);
+        //截取后半段的url
+        String originalUrl = url.substring(index + 1);
+
+        //新id +1
+        Long newVersion = Long.parseLong(version) + 1;
+
+        String newUrl = newVersion + "&" + originalUrl;
+
+        return newUrl;
+    }
+
+
 }

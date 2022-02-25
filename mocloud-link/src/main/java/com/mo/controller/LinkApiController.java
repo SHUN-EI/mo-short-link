@@ -54,8 +54,10 @@ public class LinkApiController {
 
                 //判断是否过期和可用
                 if (isVisitable(shortLinkVO)) {
+                    //截取真正的原始地址，因为前面我们做了拼接随机id&url的处理
+                    String originalUrl = CommonUtil.removeUrlPrefix(shortLinkVO.getOriginalUrl());
                     //跳转到源地址
-                    response.setHeader("Location", shortLinkVO.getOriginalUrl());
+                    response.setHeader("Location", originalUrl);
                     //302跳转
                     response.setStatus(HttpStatus.FOUND.value());
                 } else {
