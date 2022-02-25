@@ -180,7 +180,10 @@ public class ShortLinkServiceImpl implements ShortLinkService {
         String code = CommonUtil.encodeToBase62(murmurHash32);
 
         //短链码:A92AEva1,设计规定第一位为数据库位,最后一位为数据表位
-        String shortLinkCode = ShardingDBConfig.getRandomDBPrefix() + code + ShardingTableConfig.getRandomTableSuffix();
+        //String shortLinkCode = ShardingDBConfig.getRandomDBPrefix() + code + ShardingTableConfig.getRandomTableSuffix();
+
+        //通过短链码的hashCode 取模 数据库表数量,得到数据库位和表位,保证长链生成的短链是固定的
+        String shortLinkCode = ShardingDBConfig.getRandomDBPrefix(code) + code + ShardingTableConfig.getRandomTableSuffix(code);
 
         return shortLinkCode;
     }

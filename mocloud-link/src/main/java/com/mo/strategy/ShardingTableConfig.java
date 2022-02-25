@@ -33,4 +33,19 @@ public class ShardingTableConfig {
         return tableSuffixList.get(index);
     }
 
+
+    /**
+     * 获取数据表的表位
+     * 短链码的hashCode 取模 数据表数量——> 生成表位
+     * @param code
+     * @return
+     */
+    public static String getRandomTableSuffix(String code) {
+
+        int hashCode = code.hashCode();
+        //hashCode可能有负数,这里取绝对值
+        int index = Math.abs(hashCode) % tableSuffixList.size();
+        return tableSuffixList.get(index);
+    }
+
 }

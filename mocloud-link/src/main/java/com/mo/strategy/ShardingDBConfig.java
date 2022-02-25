@@ -35,4 +35,21 @@ public class ShardingDBConfig {
         int index = random.nextInt(dbPrefixList.size());
         return dbPrefixList.get(index);
     }
+
+
+    /**
+     * 获取数据库的库位
+     * 短链码的hashCode 取模 数据库数量——> 生成库位
+     *
+     * @param code
+     * @return
+     */
+    public static String getRandomDBPrefix(String code) {
+
+        int hashCode = code.hashCode();
+        //hashCode可能有负数,这里取绝对值
+        int index = Math.abs(hashCode) % dbPrefixList.size();
+
+        return dbPrefixList.get(index);
+    }
 }

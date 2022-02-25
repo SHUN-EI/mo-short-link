@@ -31,6 +31,20 @@ public class ShortLinkTest {
     private ShortLinkManager shortLinkManager;
 
     /**
+     * 通过短链码的hashCode 取模 数据库表数量,生成固定的短链码
+     */
+    @Test
+    public void testGeneCode() {
+
+        String url = "https://xdclass.net/download.html";
+        for (int i = 0; i < 10; i++) {
+
+            String shortLinkCode = shortLinkService.createShortLinkCode(url);
+            log.info("生成的短链码是:{}", shortLinkCode);
+        }
+    }
+
+    /**
      * 测试生成短链码-权重
      */
     @Test
