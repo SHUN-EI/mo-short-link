@@ -21,4 +21,5 @@ public interface GroupCodeMappingManager {
 
     Integer updateGroupCodeMappingState(GroupCodeMappingUpdateRequest request);
 
+    GroupCodeMappingDO findByCodeAndGroupId(String shortLinkCode, Long id, Long accountNo);
 }

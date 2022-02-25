@@ -23,10 +23,15 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.script.DefaultRedisScript;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
+
+import java.util.Arrays;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Created by mo on 2022/2/21
@@ -47,6 +52,8 @@ public class ShortLinkServiceImpl implements ShortLinkService {
     private LinkGroupManager linkGroupManager;
     @Autowired
     private GroupCodeMappingManager groupCodeMappingManager;
+    @Autowired
+    private RedisTemplate<Object, Object> redisTemplate;
 
 
     /**
@@ -72,51 +79,97 @@ public class ShortLinkServiceImpl implements ShortLinkService {
         //生成短链码
         String shortLinkCode = createShortLinkCode(request.getOriginalUrl());
 
-        //TODO 加锁
+        //加锁
+        //key1是短链码，ARGV[1]是accountNo,ARGV[2]是过期时间100
+        String script = "if redis.call('EXISTS',KEYS[1])==0 then redis.call('set',KEYS[1],ARGV[1]); " +
+                "redis.call('expire',KEYS[1],ARGV[2]); return 1;" +
+                " elseif redis.call('get',KEYS[1]) == ARGV[1] then return 2;" +
+                " else return 0; end;";
 
-        //先判断是否短链码被占用
-        ShortLinkDO shortLinCodeInDB = shortLinkManager.findByShortLinCode(shortLinkCode);
-        if (null == shortLinCodeInDB) {
+        //执行lua脚本
+        Long result = redisTemplate.execute(new DefaultRedisScript<>(script, Long.class), Arrays.asList(shortLinkCode), accountNo, 100);
 
+        //短链码重复标记
+        Boolean duplicateCodeFlag = false;
+
+        //加锁成功
+        if (result > 0) {
+            //C端处理
             if (EventMessageTypeEnum.SHORT_LINK_ADD_LINK.name().equalsIgnoreCase(eventMessageType)) {
-                //C端处理
-                ShortLinkDO shortLinkDO = ShortLinkDO.builder()
-                        .accountNo(accountNo)
-                        .code(shortLinkCode)
-                        .title(request.getTitle())
-                        .originalUrl(request.getOriginalUrl())
-                        .domain(domainDO.getValue())
-                        .groupId(linkGroupDO.getId())
-                        .expired(request.getExpired())
-                        .sign(originalUrlDigest)
-                        .state(ShortLinkStateEnum.ACTIVE.name())
-                        .del(0)
-                        .build();
 
-                //保存
-                shortLinkManager.addShortLink(shortLinkDO);
-                return true;
+                //先判断是否短链码被占用
+                ShortLinkDO shortLinCodeDOInDB = shortLinkManager.findByShortLinCode(shortLinkCode);
+                if (null == shortLinCodeDOInDB) {
 
+                    ShortLinkDO shortLinkDO = ShortLinkDO.builder()
+                            .accountNo(accountNo)
+                            .code(shortLinkCode)
+                            .title(request.getTitle())
+                            .originalUrl(request.getOriginalUrl())
+                            .domain(domainDO.getValue())
+                            .groupId(linkGroupDO.getId())
+                            .expired(request.getExpired())
+                            .sign(originalUrlDigest)
+                            .state(ShortLinkStateEnum.ACTIVE.name())
+                            .del(0)
+                            .build();
+
+                    //保存
+                    shortLinkManager.addShortLink(shortLinkDO);
+                    return true;
+                } else {
+                    //短链码被占用
+                    log.error("C端短链码重复:{}", eventMessage);
+                    duplicateCodeFlag = true;
+                }
             } else if (EventMessageTypeEnum.SHORT_LINK_ADD_MAPPING.name().equalsIgnoreCase(eventMessageType)) {
                 //B端处理
-                GroupCodeMappingDO codeMappingDO = GroupCodeMappingDO.builder()
-                        .accountNo(accountNo)
-                        .code(shortLinkCode)
-                        .title(request.getTitle())
-                        .originalUrl(request.getOriginalUrl())
-                        .domain(domainDO.getValue())
-                        .groupId(linkGroupDO.getId())
-                        .expired(request.getExpired())
-                        .sign(originalUrlDigest)
-                        .state(ShortLinkStateEnum.ACTIVE.name())
-                        .del(0)
-                        .build();
+                //先判断是否短链码被占用
+                GroupCodeMappingDO groupCodeMappingDOInDB = groupCodeMappingManager.findByCodeAndGroupId(shortLinkCode, linkGroupDO.getId(), accountNo);
+                if (null == groupCodeMappingDOInDB) {
+                    GroupCodeMappingDO codeMappingDO = GroupCodeMappingDO.builder()
+                            .accountNo(accountNo)
+                            .code(shortLinkCode)
+                            .title(request.getTitle())
+                            .originalUrl(request.getOriginalUrl())
+                            .domain(domainDO.getValue())
+                            .groupId(linkGroupDO.getId())
+                            .expired(request.getExpired())
+                            .sign(originalUrlDigest)
+                            .state(ShortLinkStateEnum.ACTIVE.name())
+                            .del(0)
+                            .build();
 
-                //保存
-                groupCodeMappingManager.add(codeMappingDO);
-                return true;
+                    //保存
+                    groupCodeMappingManager.add(codeMappingDO);
+                    return true;
+                } else {
+                    log.error("B端短链码重复:{}", eventMessage);
+                    duplicateCodeFlag = true;
+                }
+
+            }
+        } else {
+            //加锁失败，自旋100毫秒，再调用； 失败的可能是短链码已经被占用，需要重新生成
+            log.error("加锁失败:{}", eventMessage);
+
+            try {
+                TimeUnit.MILLISECONDS.sleep(100);
+            } catch (InterruptedException e) {
             }
 
+            duplicateCodeFlag = true;
+        }
+
+        //短链码重复标记为true
+        if (duplicateCodeFlag) {
+            //生成新的短链码url
+            String newOriginalUrl = CommonUtil.addUrlPrefixVersion(request.getOriginalUrl());
+            request.setOriginalUrl(newOriginalUrl);
+            eventMessage.setContent(JsonUtil.obj2Json(request));
+            log.warn("短链码保存失败，重新生成:{}", eventMessage);
+            //递归调用本方法处理
+            handlerAddShortLink(eventMessage);
         }
         return false;
     }

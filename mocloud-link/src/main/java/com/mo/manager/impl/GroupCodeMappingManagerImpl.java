@@ -28,6 +28,15 @@ public class GroupCodeMappingManagerImpl implements GroupCodeMappingManager {
     private GroupCodeMappingMapper mappingMapper;
 
     @Override
+    public GroupCodeMappingDO findByCodeAndGroupId(String shortLinkCode, Long id, Long accountNo) {
+        GroupCodeMappingDO groupCodeMappingDO = mappingMapper.selectOne(new QueryWrapper<GroupCodeMappingDO>()
+                .eq("code", shortLinkCode).eq("account_no", accountNo)
+                .eq("group_id", id));
+
+        return groupCodeMappingDO;
+    }
+
+    @Override
     public GroupCodeMappingDO findByGroupIdAndMappingId(Long mappingId, Long accountNo, Long groupId) {
 
         GroupCodeMappingDO codeMappingDO = mappingMapper.selectOne(new QueryWrapper<GroupCodeMappingDO>().eq("id", mappingId)
