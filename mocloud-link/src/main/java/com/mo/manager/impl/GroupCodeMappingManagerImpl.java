@@ -31,7 +31,8 @@ public class GroupCodeMappingManagerImpl implements GroupCodeMappingManager {
     public GroupCodeMappingDO findByCodeAndGroupId(String shortLinkCode, Long id, Long accountNo) {
         GroupCodeMappingDO groupCodeMappingDO = mappingMapper.selectOne(new QueryWrapper<GroupCodeMappingDO>()
                 .eq("code", shortLinkCode).eq("account_no", accountNo)
-                .eq("group_id", id));
+                .eq("group_id", id)
+                .eq("del",0));
 
         return groupCodeMappingDO;
     }
@@ -39,9 +40,11 @@ public class GroupCodeMappingManagerImpl implements GroupCodeMappingManager {
     @Override
     public GroupCodeMappingDO findByGroupIdAndMappingId(Long mappingId, Long accountNo, Long groupId) {
 
-        GroupCodeMappingDO codeMappingDO = mappingMapper.selectOne(new QueryWrapper<GroupCodeMappingDO>().eq("id", mappingId)
+        GroupCodeMappingDO codeMappingDO = mappingMapper.selectOne(new QueryWrapper<GroupCodeMappingDO>()
+                .eq("id", mappingId)
                 .eq("account_no", accountNo)
-                .eq("group_id", groupId));
+                .eq("group_id", groupId)
+                .eq("del",0));
 
         return codeMappingDO;
     }
@@ -77,12 +80,14 @@ public class GroupCodeMappingManagerImpl implements GroupCodeMappingManager {
 
         Page<GroupCodeMappingDO> mappingDOPage = mappingMapper.selectPage(pageInfo, new QueryWrapper<GroupCodeMappingDO>()
                 .eq("account_no", request.getAccountNo())
-                .eq("group_id", request.getGroupId()));
+                .eq("group_id", request.getGroupId())
+                .eq("del",0));
+
+        Map<String, Object> resultMap = new HashMap<>(3);
 
         List<GroupCodeMappingDO> groupCodeMappingDOS = mappingDOPage.getRecords();
         List<GroupCodeMappingVO> groupCodeMappingVOS = groupCodeMappingDOS.stream().map(obj -> beanProcess(obj)).collect(Collectors.toList());
 
-        Map<String, Object> resultMap = new HashMap<>(3);
         resultMap.put("total_record", mappingDOPage.getTotal());
         resultMap.put("total_page", mappingDOPage.getPages());
         resultMap.put("current_data", groupCodeMappingVOS);
@@ -97,6 +102,7 @@ public class GroupCodeMappingManagerImpl implements GroupCodeMappingManager {
                 .eq("code", request.getShortLinkCode())
                 .eq("account_no", request.getAccountNo())
                 .eq("group_id", request.getGroupId())
+                .eq("del",0)
                 .set("state", request.getShortLinkStateEnum().name()));
 
         return rows;

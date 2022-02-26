@@ -1,6 +1,7 @@
 package com.mo.controller;
 
 import com.mo.request.ShortLinkAddRequest;
+import com.mo.request.ShortLinkPageRequest;
 import com.mo.service.ShortLinkService;
 import com.mo.utils.JsonData;
 import io.swagger.annotations.Api;
@@ -11,6 +12,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.Map;
 
 /**
  * Created by mo on 2022/2/23
@@ -29,6 +32,14 @@ public class ShortLinkController {
 
         JsonData jsonData = shortLinkService.createShortLink(request);
         return jsonData;
+    }
+
+    @ApiOperation("分页查找短链-B端")
+    @PostMapping("/pageByGroupId")
+    public JsonData pageByGroupId(@ApiParam("短链分页请求对象") @RequestBody ShortLinkPageRequest request) {
+        Map<String, Object> result = shortLinkService.pageByGroupId(request);
+
+        return JsonData.buildSuccess(result);
     }
 
 }

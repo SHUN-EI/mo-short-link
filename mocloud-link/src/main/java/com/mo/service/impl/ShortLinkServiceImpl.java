@@ -11,6 +11,7 @@ import com.mo.manager.LinkGroupManager;
 import com.mo.manager.ShortLinkManager;
 import com.mo.model.*;
 import com.mo.request.ShortLinkAddRequest;
+import com.mo.request.ShortLinkPageRequest;
 import com.mo.service.ShortLinkService;
 import com.mo.strategy.ShardingDBConfig;
 import com.mo.strategy.ShardingTableConfig;
@@ -31,6 +32,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
 import java.util.Arrays;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -55,6 +57,22 @@ public class ShortLinkServiceImpl implements ShortLinkService {
     @Autowired
     private RedisTemplate<Object, Object> redisTemplate;
 
+    /**
+     * 分页查找短链-B端
+     *
+     * @param request
+     * @return
+     */
+    @Override
+    public Map<String, Object> pageByGroupId(ShortLinkPageRequest request) {
+
+        LoginUserDTO loginUserDTO = LoginInterceptor.threadLocal.get();
+        request.setAccountNo(loginUserDTO.getAccountNo());
+
+        Map<String, Object> resultMap = groupCodeMappingManager.pageShortLink(request);
+
+        return resultMap;
+    }
 
     /**
      * 处理新增短链消息

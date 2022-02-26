@@ -53,7 +53,8 @@ spring:
         password: mo12345
     sharding:
       default-data-source-name: ds0
-      default-key-generator: #默认的id生成策略
+      #默认的id生成策略
+      default-key-generator:
         column: id
         props:
           worker:
@@ -66,14 +67,6 @@ spring:
             inline:
               sharding-column: account_no
               algorithm-expression: ds$->{account_no % 2}
-          #id生成策略
-          key-generator:
-            column: id
-            props:
-              worker:
-                id: ${workId}
-            #id生成策略
-            type: SNOWFLAKE
         short_link:
           #数据节点
           actual-data-nodes: ds0.short_link,ds1.short_link,dsa.short_link
@@ -86,17 +79,19 @@ spring:
             standard:
               sharding-column: code
               precise-algorithm-class-name: com.mo.strategy.CustomTablePreciseShardingAlgorithm
-          #id生成策略
-          key-generator:
-            column: id
-            props:
-              worker:
-                id: ${workId}
-            #id生成策略
-            type: SNOWFLAKE
         group_code_mapping:
           #数据节点
-          actual-data-nodes: ds0.group_code_mapping,ds1.group_code_mapping
+          actual-data-nodes: ds$->{0..1}.group_code_mapping_$->{0..1}
+          #配置分库策略
+          database-strategy:
+            inline:
+              sharding-column: account_no
+              algorithm-expression: ds$->{account_no % 2}
+          #配置分表策略
+          table-strategy:
+            inline:
+              sharding-column: group_id
+              algorithm-expression: group_code_mapping_$->{group_id % 2}
 
   flyway:
     enabled: true
