@@ -1,0 +1,46 @@
+server:
+  port: 9003
+spring:
+  application:
+    name: mocloud-shop
+  cloud:
+    nacos: #注册中心地址
+      discovery:
+        server-addr: 39.108.182.26:8848
+        username: nacos
+        password: nacos
+  shardingsphere:
+    props:
+      sql:
+        show: true # 打印执行的数据库以及语句
+    datasource:
+      names: ds0 #数据源 ds0
+      ds0:
+        driver-class-name: com.mysql.cj.jdbc.Driver
+        jdbc-url: jdbc:mysql://39.108.182.26:3306/msl_shop?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
+        connectionTimeoutMilliseconds: 30000
+        idleTimeoutMilliseconds: 60000
+        maintenanceIntervalMilliseconds: 30000
+        maxLifetimeMilliseconds: 1800000
+        type: com.zaxxer.hikari.HikariDataSource
+        maxPoolSize: 50
+        minPoolSize: 50
+        username: root
+        password: mo12345
+    sharding:
+      default-data-source-name: ds0
+      #默认的id生成策略
+      default-key-generator:
+        column: id
+        props:
+          worker:
+            id: ${workId}
+        type: SNOWFLAKE
+
+  flyway:
+    enabled: true
+    encoding: utf-8
+    locations: classpath:db/migration #迁移脚本的位置，默认db/migration
+    baseline-on-migrate: true #当迁移时发现目标schema非空，而且带有没有元数据的表时，是否自动执行基准迁移，默认false
+    out-of-order: true #是否允许无序的迁移，默认false
+    table: flyway_schema_version_history
