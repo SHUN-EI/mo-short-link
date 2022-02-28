@@ -17,9 +17,9 @@ import org.springframework.stereotype.Component;
  * Created by mo on 2022/2/23
  */
 @Component
-@RabbitListener(queues = "${mqconfig.short_link_add_mapping_queue}")
+@RabbitListener(queues = "${mqconfig.short_link_delete_mapping_queue}")
 @Slf4j
-public class ShortLinkAddMappingMQListener {
+public class ShortLinkDeleteMappingMQListener {
 
     @Autowired
     private ShortLinkService shortLinkService;
@@ -27,18 +27,15 @@ public class ShortLinkAddMappingMQListener {
     @RabbitHandler
     public void shortLinkHandler(EventMessage eventMessage, Message message, Channel channel) {
 
-        log.info("监听到消息:ShortLinkAddMappingMQListener message消息内容:{}", message);
+        log.info("监听到消息:ShortLinkDeleteMappingMQListener message消息内容:{}", message);
         long deliveryTag = message.getMessageProperties().getDeliveryTag();
 
         try {
             //处理业务逻辑
             eventMessage.setEventMessageType(EventMessageTypeEnum.SHORT_LINK_ADD_MAPPING.name());
             shortLinkService.handleAddShortLink(eventMessage);
-            //模拟消息消费失败，触发重试次数
 
             log.info("消费成功:{}", eventMessage);
-            //确认消息消费成功
-            //channel.basicAck(deliveryTag,false);
 
         } catch (Exception e) {
             //处理业务异常，还有进行其他操作，比如记录失败原因

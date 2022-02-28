@@ -1,6 +1,7 @@
 package com.mo.manager.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.mo.manager.ShortLinkManager;
 import com.mo.mapper.ShortLinkMapper;
 import com.mo.model.ShortLinkDO;
@@ -17,6 +18,19 @@ public class ShortLinkManagerImpl implements ShortLinkManager {
     private ShortLinkMapper shortLinkMapper;
 
     @Override
+    public Integer update(ShortLinkDO shortLinkDO) {
+
+        int rows = shortLinkMapper.update(null, new UpdateWrapper<ShortLinkDO>()
+                .eq("code", shortLinkDO.getCode())
+                .eq("del", 0)
+                .eq("account_no", shortLinkDO.getAccountNo())
+                .set("title", shortLinkDO.getTitle())
+                .set("domain", shortLinkDO.getDomain()));
+
+        return rows;
+    }
+
+    @Override
     public Integer addShortLink(ShortLinkDO shortLinkDO) {
 
         return shortLinkMapper.insert(shortLinkDO);
@@ -25,7 +39,7 @@ public class ShortLinkManagerImpl implements ShortLinkManager {
     @Override
     public ShortLinkDO findByShortLinCode(String shortLinkCode) {
 
-        return shortLinkMapper.selectOne(new QueryWrapper<ShortLinkDO>().eq("code", shortLinkCode).eq("del",0));
+        return shortLinkMapper.selectOne(new QueryWrapper<ShortLinkDO>().eq("code", shortLinkCode).eq("del", 0));
     }
 
     /**

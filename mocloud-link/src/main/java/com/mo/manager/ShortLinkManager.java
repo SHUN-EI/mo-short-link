@@ -13,4 +13,5 @@ public interface ShortLinkManager {
 
     Integer del(String shortLinkCode,Long accountNo);
 
+    Integer update(ShortLinkDO shortLinkDO);
 }

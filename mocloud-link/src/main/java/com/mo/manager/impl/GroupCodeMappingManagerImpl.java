@@ -28,11 +28,25 @@ public class GroupCodeMappingManagerImpl implements GroupCodeMappingManager {
     private GroupCodeMappingMapper mappingMapper;
 
     @Override
+    public Integer update(GroupCodeMappingDO groupCodeMappingDO) {
+
+        int rows = mappingMapper.update(null, new UpdateWrapper<GroupCodeMappingDO>()
+                .eq("id", groupCodeMappingDO.getId())
+                .eq("account_no", groupCodeMappingDO.getAccountNo())
+                .eq("group_id", groupCodeMappingDO.getGroupId())
+                .eq("del", 0)
+                .set("title", groupCodeMappingDO.getTitle())
+                .set("domain", groupCodeMappingDO.getDomain()));
+
+        return rows;
+    }
+
+    @Override
     public GroupCodeMappingDO findByCodeAndGroupId(String shortLinkCode, Long id, Long accountNo) {
         GroupCodeMappingDO groupCodeMappingDO = mappingMapper.selectOne(new QueryWrapper<GroupCodeMappingDO>()
                 .eq("code", shortLinkCode).eq("account_no", accountNo)
                 .eq("group_id", id)
-                .eq("del",0));
+                .eq("del", 0));
 
         return groupCodeMappingDO;
     }
@@ -44,7 +58,7 @@ public class GroupCodeMappingManagerImpl implements GroupCodeMappingManager {
                 .eq("id", mappingId)
                 .eq("account_no", accountNo)
                 .eq("group_id", groupId)
-                .eq("del",0));
+                .eq("del", 0));
 
         return codeMappingDO;
     }
@@ -81,7 +95,7 @@ public class GroupCodeMappingManagerImpl implements GroupCodeMappingManager {
         Page<GroupCodeMappingDO> mappingDOPage = mappingMapper.selectPage(pageInfo, new QueryWrapper<GroupCodeMappingDO>()
                 .eq("account_no", request.getAccountNo())
                 .eq("group_id", request.getGroupId())
-                .eq("del",0));
+                .eq("del", 0));
 
         Map<String, Object> resultMap = new HashMap<>(3);
 
@@ -102,7 +116,7 @@ public class GroupCodeMappingManagerImpl implements GroupCodeMappingManager {
                 .eq("code", request.getShortLinkCode())
                 .eq("account_no", request.getAccountNo())
                 .eq("group_id", request.getGroupId())
-                .eq("del",0)
+                .eq("del", 0)
                 .set("state", request.getShortLinkStateEnum().name()));
 
         return rows;

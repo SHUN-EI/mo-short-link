@@ -123,6 +123,60 @@ public class ShortLinkServiceImpl implements ShortLinkService {
         return resultMap;
     }
 
+
+    /**
+     * 处理更新短链消息
+     *
+     * @param eventMessage
+     * @return
+     */
+    @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
+    @Override
+    public Boolean handleUpdateShortLink(EventMessage eventMessage) {
+
+        Long accountNo = eventMessage.getAccountNo();
+        String eventMessageType = eventMessage.getEventMessageType();
+
+        //消息的消息体——>转换成ShortLinkUpdateRequest对象
+        ShortLinkUpdateRequest request = JsonUtil.json2Obj(eventMessage.getContent(), ShortLinkUpdateRequest.class);
+        //短链域名校验,判断短链域名是否合法
+        DomainDO domainDO = checkDomain(request.getDomainType(), request.getDomainId(), accountNo);
+        //校验组名是否合法
+        LinkGroupDO linkGroupDO = checkLinkGroup(request.getGroupId(), accountNo);
+
+        //C端处理
+        if (EventMessageTypeEnum.SHORT_LINK_UPDATE_LINK.name().equalsIgnoreCase(eventMessageType)) {
+
+            ShortLinkDO shortLinkDO = ShortLinkDO.builder()
+                    .code(request.getCode())
+                    .title(request.getTitle())
+                    .domain(domainDO.getValue())
+                    .accountNo(accountNo).build();
+
+            //更新
+            int rows = shortLinkManager.update(shortLinkDO);
+            log.debug("更新C端短链，rows={}",rows);
+            return true;
+
+        } else if (EventMessageTypeEnum.SHORT_LINK_UPDATE_MAPPING.name().equalsIgnoreCase(eventMessageType)) {
+            //B端处理
+            GroupCodeMappingDO groupCodeMappingDO = GroupCodeMappingDO.builder()
+                    .id(request.getMappingId())
+                    .groupId(request.getGroupId())
+                    .accountNo(accountNo)
+                    .title(request.getTitle())
+                    .domain(domainDO.getValue())
+                    .build();
+
+            int rows = groupCodeMappingManager.update(groupCodeMappingDO);
+            log.debug("更新B端短链，rows={}",rows);
+            return true;
+
+        }
+
+        return false;
+    }
+
     /**
      * 处理新增短链消息
      *
@@ -130,7 +184,7 @@ public class ShortLinkServiceImpl implements ShortLinkService {
      */
     @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
     @Override
-    public Boolean handlerAddShortLink(EventMessage eventMessage) {
+    public Boolean handleAddShortLink(EventMessage eventMessage) {
 
         Long accountNo = eventMessage.getAccountNo();
         String eventMessageType = eventMessage.getEventMessageType();
@@ -236,7 +290,7 @@ public class ShortLinkServiceImpl implements ShortLinkService {
             eventMessage.setContent(JsonUtil.obj2Json(request));
             log.warn("短链码保存失败，重新生成:{}", eventMessage);
             //递归调用本方法处理
-            handlerAddShortLink(eventMessage);
+            handleAddShortLink(eventMessage);
         }
         return false;
     }

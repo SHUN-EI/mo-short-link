@@ -21,7 +21,9 @@ public interface ShortLinkService {
 
     JsonData createShortLink(ShortLinkAddRequest request);
 
-    Boolean handlerAddShortLink(EventMessage eventMessage);
+    Boolean handleAddShortLink(EventMessage eventMessage);
+
+    Boolean handleUpdateShortLink(EventMessage eventMessage);
 
     Map<String, Object> pageByGroupId(ShortLinkPageRequest request);
 

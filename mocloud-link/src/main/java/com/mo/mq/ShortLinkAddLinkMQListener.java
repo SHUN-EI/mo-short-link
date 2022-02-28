@@ -10,7 +10,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.core.Message;
 import org.springframework.amqp.rabbit.annotation.RabbitHandler;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
-import org.springframework.amqp.rabbit.annotation.RabbitListeners;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -34,7 +33,7 @@ public class ShortLinkAddLinkMQListener {
         try {
             //处理业务逻辑
             eventMessage.setEventMessageType(EventMessageTypeEnum.SHORT_LINK_ADD_LINK.name());
-            shortLinkService.handlerAddShortLink(eventMessage);
+            shortLinkService.handleAddShortLink(eventMessage);
 
             log.info("消费成功:{}", eventMessage);
             //确认消息消费成功
