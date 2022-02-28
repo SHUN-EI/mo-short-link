@@ -55,6 +55,11 @@ public enum BizCodeEnum {
     ORDER_CONFIRM_NOT_EXIST(280010,"订单不存在"),
 
     /**
+     * 商品
+     */
+    PRODUCT_NOT_EXISTS(290001, "商品不存在"),
+
+    /**
      * 支付
      */
     PAY_ORDER_FAIL(300001,"创建支付订单失败"),
