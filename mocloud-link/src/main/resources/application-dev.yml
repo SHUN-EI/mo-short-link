@@ -153,6 +153,29 @@ mqconfig:
   short_link_add_link_binding_key: short_link.add.link.*.routing.key
   #topic类型的binding key，用于绑定队列和交换机，是用于 mapping 消费者
   short_link_add_mapping_binding_key: short_link.add.*.mapping.routing.key
+  #删除短链 队列,用于link
+  short_link_delete_link_queue: short_link.del.link.queue
+  #删除短链映射 队列,用于 mapping
+  short_link_delete_mapping_queue: short_link.del.mapping.queue
+  #删除短链具体的routingKey,【发送消息使用】
+  short_link_delete_routing_key: short_link.del.link.mapping.routing.key
+  #topic类型的binding key，用于绑定队列和交换机，是用于 link 消费者
+  short_link_delete_link_binding_key: short_link.del.link.*.routing.key
+  #topic类型的binding key，用于绑定队列和交换机，是用于 mapping 消费者
+  short_link_delete_mapping_binding_key: short_link.del.*.mapping.routing.key
+  #更新短链 队列,用于link
+  short_link_update_link_queue: short_link.update.link.queue
+  #更新短链映射 队列,用于 mapping
+  short_link_update_mapping_queue: short_link.update.mapping.queue
+  #更新短链具体的routingKey,【发送消息使用】
+  short_link_update_routing_key: short_link.update.link.mapping.routing.key
+  #topic类型的binding key，用于绑定队列和交换机，是用于 link 消费者
+  short_link_update_link_binding_key: short_link.update.link.*.routing.key
+  #topic类型的binding key，用于绑定队列和交换机，是用于 mapping 消费者
+  short_link_update_mapping_binding_key: short_link.update.*.mapping.routing.key
+
+
+
 
 #自定义异常消息队列配置,消费消息重试一定次数后，用特定的routingKey转发到指定的交换机中，方便后续排查和告警
 mqerrorconfig:

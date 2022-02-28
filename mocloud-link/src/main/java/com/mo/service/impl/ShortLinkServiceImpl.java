@@ -11,7 +11,9 @@ import com.mo.manager.LinkGroupManager;
 import com.mo.manager.ShortLinkManager;
 import com.mo.model.*;
 import com.mo.request.ShortLinkAddRequest;
+import com.mo.request.ShortLinkDeleteRequest;
 import com.mo.request.ShortLinkPageRequest;
+import com.mo.request.ShortLinkUpdateRequest;
 import com.mo.service.ShortLinkService;
 import com.mo.strategy.ShardingDBConfig;
 import com.mo.strategy.ShardingTableConfig;
@@ -56,6 +58,53 @@ public class ShortLinkServiceImpl implements ShortLinkService {
     private GroupCodeMappingManager groupCodeMappingManager;
     @Autowired
     private RedisTemplate<Object, Object> redisTemplate;
+
+
+    /**
+     * 删除短链
+     *
+     * @param request
+     * @return
+     */
+    @Override
+    public JsonData delete(ShortLinkDeleteRequest request) {
+
+        LoginUserDTO loginUserDTO = LoginInterceptor.threadLocal.get();
+        EventMessage eventMessage = EventMessage.builder().accountNo(loginUserDTO.getAccountNo())
+                .content(JsonUtil.obj2Json(request))
+                .messageId(IDUtil.geneSnowFlakeID().toString())
+                .eventMessageType(EventMessageTypeEnum.SHORT_LINK_DEL.name())
+                .build();
+
+        //发送消息
+        rabbitTemplate.convertAndSend(rabbitMQConfig.getShortLinkEventExchange(), rabbitMQConfig.getShortLinkDeleteRoutingKey(), eventMessage);
+
+
+        return JsonData.buildSuccess();
+    }
+
+    /**
+     * 更新短链
+     *
+     * @param request
+     * @return
+     */
+    @Override
+    public JsonData update(ShortLinkUpdateRequest request) {
+
+
+        LoginUserDTO loginUserDTO = LoginInterceptor.threadLocal.get();
+        EventMessage eventMessage = EventMessage.builder().accountNo(loginUserDTO.getAccountNo())
+                .content(JsonUtil.obj2Json(request))
+                .messageId(IDUtil.geneSnowFlakeID().toString())
+                .eventMessageType(EventMessageTypeEnum.SHORT_LINK_UPDATE.name())
+                .build();
+
+        //发送消息
+        rabbitTemplate.convertAndSend(rabbitMQConfig.getShortLinkEventExchange(), rabbitMQConfig.getShortLinkUpdateRoutingKey(), eventMessage);
+
+        return JsonData.buildSuccess();
+    }
 
     /**
      * 分页查找短链-B端
