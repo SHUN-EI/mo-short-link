@@ -36,6 +36,15 @@ spring:
           worker:
             id: ${workId}
         type: SNOWFLAKE
+      tables:
+        product_order:
+          #数据节点
+          actual-data-nodes: ds0.product_order_$->{0..1}
+          #配置分表策略，水平分表
+          table-strategy:
+            inline:
+              sharding-column: account_no
+              algorithm-expression: product_order_$->{ account_no % 2 }
 
   flyway:
     enabled: true

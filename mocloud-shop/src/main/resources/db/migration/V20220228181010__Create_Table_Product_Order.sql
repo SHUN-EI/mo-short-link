@@ -1,0 +1,53 @@
+drop table  if exists  product_order_0;
+CREATE TABLE product_order_0 (
+  id bigint NOT NULL,
+  product_id bigint DEFAULT NULL COMMENT '订单类型',
+  product_title varchar(64) DEFAULT NULL COMMENT '商品标题',
+  product_amount decimal(16,2) DEFAULT NULL COMMENT '商品单价',
+  product_snapshot varchar(2048) DEFAULT NULL COMMENT '商品快照',
+  buy_num int DEFAULT NULL COMMENT '购买数量',
+  out_trade_no varchar(64) DEFAULT NULL COMMENT '订单唯一标识',
+  state varchar(11) DEFAULT NULL COMMENT 'NEW 未支付订单,PAY已经支付订单,CANCEL超时取消订单',
+  total_amount decimal(16,2) DEFAULT NULL COMMENT '订单总金额',
+  pay_amount decimal(16,2) DEFAULT NULL COMMENT '订单实际支付价格',
+  pay_type varchar(64) DEFAULT NULL COMMENT '支付类型，微信-银行-支付宝',
+  nickname varchar(64) DEFAULT NULL COMMENT '账号昵称',
+  account_no bigint DEFAULT NULL COMMENT '用户id',
+  del int DEFAULT '0' COMMENT '0表示未删除，1表示已经删除',
+  gmt_modified datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  gmt_create datetime DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  bill_type varchar(32) DEFAULT NULL COMMENT '发票类型：0->不开发票；1->电子发票；2->纸质发票',
+  bill_header varchar(200) DEFAULT NULL COMMENT '发票抬头',
+  bill_content varchar(200) DEFAULT NULL COMMENT '发票内容',
+  bill_receiver_phone varchar(32) DEFAULT NULL COMMENT '发票收票人电话',
+  bill_receiver_email varchar(200) DEFAULT NULL COMMENT '发票收票人邮箱',
+  PRIMARY KEY (id),
+  UNIQUE KEY uk_query (out_trade_no,account_no) USING BTREE
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin COMMENT='订单表_0';
+
+drop table  if exists  product_order_1;
+CREATE TABLE product_order_1 (
+  id bigint NOT NULL,
+  product_id bigint DEFAULT NULL COMMENT '订单类型',
+  product_title varchar(64) DEFAULT NULL COMMENT '商品标题',
+  product_amount decimal(16,2) DEFAULT NULL COMMENT '商品单价',
+  product_snapshot varchar(2048) DEFAULT NULL COMMENT '商品快照',
+  buy_num int DEFAULT NULL COMMENT '购买数量',
+  out_trade_no varchar(64) DEFAULT NULL COMMENT '订单唯一标识',
+  state varchar(11) DEFAULT NULL COMMENT 'NEW 未支付订单,PAY已经支付订单,CANCEL超时取消订单',
+  total_amount decimal(16,2) DEFAULT NULL COMMENT '订单总金额',
+  pay_amount decimal(16,2) DEFAULT NULL COMMENT '订单实际支付价格',
+  pay_type varchar(64) DEFAULT NULL COMMENT '支付类型，微信-银行-支付宝',
+  nickname varchar(64) DEFAULT NULL COMMENT '账号昵称',
+  account_no bigint DEFAULT NULL COMMENT '用户id',
+  del int DEFAULT '0' COMMENT '0表示未删除，1表示已经删除',
+  gmt_modified datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  gmt_create datetime DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  bill_type varchar(32) DEFAULT NULL COMMENT '发票类型：0->不开发票；1->电子发票；2->纸质发票',
+  bill_header varchar(200) DEFAULT NULL COMMENT '发票抬头',
+  bill_content varchar(200) DEFAULT NULL COMMENT '发票内容',
+  bill_receiver_phone varchar(32) DEFAULT NULL COMMENT '发票收票人电话',
+  bill_receiver_email varchar(200) DEFAULT NULL COMMENT '发票收票人邮箱',
+  PRIMARY KEY (id),
+  UNIQUE KEY uk_query (out_trade_no,account_no) USING BTREE
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin COMMENT='订单表_1';
