@@ -11,7 +11,7 @@ public interface ShortLinkManager {
 
     ShortLinkDO findByShortLinCode(String shortLinkCode);
 
-    Integer del(String shortLinkCode,Long accountNo);
+    Integer del(ShortLinkDO shortLinkDO);
 
     Integer update(ShortLinkDO shortLinkDO);
 }

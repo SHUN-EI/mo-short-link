@@ -123,9 +123,53 @@ public class ShortLinkServiceImpl implements ShortLinkService {
         return resultMap;
     }
 
+    /**
+     * 处理删除短链消息
+     * 账号维度——同一账号去删除账号下的短链数据，不存在并发，不用加锁
+     *
+     * @param eventMessage
+     * @return
+     */
+    @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
+    @Override
+    public Boolean handleDeleteShortLink(EventMessage eventMessage) {
+        Long accountNo = eventMessage.getAccountNo();
+        String eventMessageType = eventMessage.getEventMessageType();
+
+        //消息的消息体——>转换成ShortLinkDeleteRequest对象
+        ShortLinkDeleteRequest request = JsonUtil.json2Obj(eventMessage.getContent(), ShortLinkDeleteRequest.class);
+
+        //C端处理
+        if (EventMessageTypeEnum.SHORT_LINK_DEL_LINK.name().equalsIgnoreCase(eventMessageType)) {
+
+            ShortLinkDO shortLinkDO = ShortLinkDO.builder().
+                    code(request.getCode())
+                    .accountNo(accountNo)
+                    .build();
+
+            //删除
+            int rows = shortLinkManager.del(shortLinkDO);
+            log.debug("删除C端短链:{}", rows);
+            return true;
+        } else if (EventMessageTypeEnum.SHORT_LINK_DEL_MAPPING.name().equalsIgnoreCase(eventMessageType)) {
+            //B端处理
+            GroupCodeMappingDO groupCodeMappingDO = GroupCodeMappingDO.builder()
+                    .id(request.getMappingId())
+                    .accountNo(accountNo)
+                    .groupId(request.getGroupId())
+                    .build();
+
+            int rows = groupCodeMappingManager.delete(groupCodeMappingDO);
+            log.debug("删除B端短链:{}", rows);
+            return true;
+        }
+
+        return false;
+    }
 
     /**
      * 处理更新短链消息
+     * 账号维度——同一账号去更新账号下的短链数据，不存在并发，不用加锁
      *
      * @param eventMessage
      * @return
@@ -155,21 +199,21 @@ public class ShortLinkServiceImpl implements ShortLinkService {
 
             //更新
             int rows = shortLinkManager.update(shortLinkDO);
-            log.debug("更新C端短链，rows={}",rows);
+            log.debug("更新C端短链，rows={}", rows);
             return true;
 
         } else if (EventMessageTypeEnum.SHORT_LINK_UPDATE_MAPPING.name().equalsIgnoreCase(eventMessageType)) {
             //B端处理
             GroupCodeMappingDO groupCodeMappingDO = GroupCodeMappingDO.builder()
                     .id(request.getMappingId())
-                    .groupId(request.getGroupId())
+                    .groupId(linkGroupDO.getId())
                     .accountNo(accountNo)
                     .title(request.getTitle())
                     .domain(domainDO.getValue())
                     .build();
 
             int rows = groupCodeMappingManager.update(groupCodeMappingDO);
-            log.debug("更新B端短链，rows={}",rows);
+            log.debug("更新B端短链，rows={}", rows);
             return true;
 
         }

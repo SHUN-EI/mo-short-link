@@ -45,16 +45,15 @@ public class ShortLinkManagerImpl implements ShortLinkManager {
     /**
      * 逻辑删除
      *
-     * @param shortLinkCode
-     * @param accountNo
+     * @param shortLinkDO
      * @return
      */
     @Override
-    public Integer del(String shortLinkCode, Long accountNo) {
+    public Integer del(ShortLinkDO shortLinkDO) {
 
-        ShortLinkDO shortLinkDO = new ShortLinkDO();
-        shortLinkDO.setDel(1);
-
-        return shortLinkMapper.update(shortLinkDO, new QueryWrapper<ShortLinkDO>().eq("code", shortLinkCode).eq("account_no", accountNo));
+        return shortLinkMapper.update(null, new UpdateWrapper<ShortLinkDO>()
+                .eq("code", shortLinkDO.getCode())
+                .eq("account_no", shortLinkDO.getAccountNo())
+                .set("del", 1));
     }
 }

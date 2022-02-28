@@ -28,7 +28,6 @@ public class ShortLinkUpdateLinkMQListener {
     public void shortLinkHandler(EventMessage eventMessage, Message message, Channel channel) {
 
         log.info("监听到消息:ShortLinkUpdateLinkMQListener message消息内容:{}", message);
-        long deliveryTag = message.getMessageProperties().getDeliveryTag();
 
         try {
             //处理业务逻辑

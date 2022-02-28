@@ -15,7 +15,7 @@ public interface GroupCodeMappingManager {
 
     Integer add(GroupCodeMappingDO groupCodeMappingDO);
 
-    Integer delete(String shortLinkCode, Long accountNo, Long groupId);
+    Integer delete(GroupCodeMappingDO groupCodeMappingDO);
 
     Map<String, Object> pageShortLink(ShortLinkPageRequest request);
 

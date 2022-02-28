@@ -28,12 +28,11 @@ public class ShortLinkDeleteMappingMQListener {
     public void shortLinkHandler(EventMessage eventMessage, Message message, Channel channel) {
 
         log.info("监听到消息:ShortLinkDeleteMappingMQListener message消息内容:{}", message);
-        long deliveryTag = message.getMessageProperties().getDeliveryTag();
 
         try {
             //处理业务逻辑
-            eventMessage.setEventMessageType(EventMessageTypeEnum.SHORT_LINK_ADD_MAPPING.name());
-            shortLinkService.handleAddShortLink(eventMessage);
+            eventMessage.setEventMessageType(EventMessageTypeEnum.SHORT_LINK_DEL_MAPPING.name());
+            shortLinkService.handleDeleteShortLink(eventMessage);
 
             log.info("消费成功:{}", eventMessage);
 

@@ -44,7 +44,8 @@ public class GroupCodeMappingManagerImpl implements GroupCodeMappingManager {
     @Override
     public GroupCodeMappingDO findByCodeAndGroupId(String shortLinkCode, Long id, Long accountNo) {
         GroupCodeMappingDO groupCodeMappingDO = mappingMapper.selectOne(new QueryWrapper<GroupCodeMappingDO>()
-                .eq("code", shortLinkCode).eq("account_no", accountNo)
+                .eq("code", shortLinkCode)
+                .eq("account_no", accountNo)
                 .eq("group_id", id)
                 .eq("del", 0));
 
@@ -71,17 +72,16 @@ public class GroupCodeMappingManagerImpl implements GroupCodeMappingManager {
     /**
      * 逻辑删除
      *
-     * @param shortLinkCode
-     * @param accountNo
-     * @param groupId
+     * @param groupCodeMappingDO
      * @return
      */
     @Override
-    public Integer delete(String shortLinkCode, Long accountNo, Long groupId) {
+    public Integer delete(GroupCodeMappingDO groupCodeMappingDO) {
 
-        Integer rows = mappingMapper.update(null, new UpdateWrapper<GroupCodeMappingDO>().eq("code", shortLinkCode)
-                .eq("account_no", accountNo)
-                .eq("group_id", groupId)
+        Integer rows = mappingMapper.update(null, new UpdateWrapper<GroupCodeMappingDO>()
+                .eq("id", groupCodeMappingDO.getId())
+                .eq("account_no", groupCodeMappingDO.getAccountNo())
+                .eq("group_id", groupCodeMappingDO.getGroupId())
                 .set("del", 1));
 
         return rows;

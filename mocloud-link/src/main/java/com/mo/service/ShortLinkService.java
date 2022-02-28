@@ -30,4 +30,6 @@ public interface ShortLinkService {
     JsonData delete(ShortLinkDeleteRequest request);
 
     JsonData update(ShortLinkUpdateRequest request);
+
+    Boolean handleDeleteShortLink(EventMessage eventMessage);
 }
