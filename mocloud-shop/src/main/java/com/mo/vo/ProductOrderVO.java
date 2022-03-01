@@ -1,33 +1,17 @@
-package com.mo.model;
+package com.mo.vo;
 
-import java.math.BigDecimal;
-import com.baomidou.mybatisplus.annotation.TableName;
-import com.baomidou.mybatisplus.annotation.IdType;
-import java.util.Date;
-import com.baomidou.mybatisplus.annotation.TableId;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+
 import java.io.Serializable;
+import java.math.BigDecimal;
+import java.util.Date;
 
-import lombok.*;
-
-/**
- * <p>
- * 订单表
- * </p>
- *
- * @author mo
- * @since 2022-02-28
- */
 @Data
 @EqualsAndHashCode(callSuper = false)
-@TableName("product_order")
-@Builder
-@AllArgsConstructor
-@NoArgsConstructor
-public class ProductOrderDO implements Serializable {
+public class ProductOrderVO implements Serializable {
 
-    private static final long serialVersionUID = 1L;
 
-      //@TableId(value = "id", type = IdType.AUTO)
     private Long id;
 
     /**
@@ -64,6 +48,11 @@ public class ProductOrderDO implements Serializable {
      * NEW 未支付订单,PAY已经支付订单,CANCEL超时取消订单
      */
     private String state;
+
+    /**
+     * 订单生成时间
+     */
+    private Date createTime;
 
     /**
      * 订单总金额
