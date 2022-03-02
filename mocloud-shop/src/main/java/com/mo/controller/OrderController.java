@@ -4,10 +4,12 @@ import com.mo.enums.BizCodeEnum;
 import com.mo.request.CreateOrderRequest;
 import com.mo.request.OrderListRequest;
 import com.mo.service.OrderService;
+import com.mo.utils.CommonUtil;
 import com.mo.utils.JsonData;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -21,6 +23,7 @@ import java.util.Map;
 @Api(tags = "订单模块")
 @RestController
 @RequestMapping("/api/order/v1")
+@Slf4j
 public class OrderController {
 
     @Autowired
@@ -29,7 +32,14 @@ public class OrderController {
     @ApiOperation("创建订单")
     @PostMapping("/createOrder")
     public void createOrder(@ApiParam("创建订单对象") @RequestBody CreateOrderRequest request, HttpServletResponse response) {
+        JsonData jsonData = orderService.createOrder(request);
 
+        if (jsonData.getCode() == 0) {
+            log.info("创建订单成功:{}", jsonData.getData());
+        }else {
+            log.error("创建订单失败:{}", jsonData.getData());
+            CommonUtil.sendJsonMessage(response, jsonData);
+        }
     }
 
     @ApiOperation("分页查询订单列表")

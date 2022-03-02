@@ -28,13 +28,16 @@ public class CreateOrderRequest {
     @ApiModelProperty("订单总金额")
     private BigDecimal totalAmount;
 
+    /**
+     * 实际支付价格
+     * 若使用了优惠券，则是减去优惠券之后的价格，若没有使用优惠券，则与totalAmount一样
+     */
     @ApiModelProperty("订单实际支付价格")
     private BigDecimal payAmount;
 
 
     @ApiModelProperty("防止重复提交的令牌")
     private String token;
-
 
     @ApiModelProperty("发票类型：0->不开发票；1->电子发票；2->纸质发票")
     private String billType;

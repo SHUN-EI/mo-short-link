@@ -1,5 +1,6 @@
 package com.mo.service;
 
+import com.mo.request.CreateOrderRequest;
 import com.mo.request.OrderListRequest;
 import com.mo.utils.JsonData;
 
@@ -12,4 +13,6 @@ public interface OrderService {
     Map<String, Object> pageOrderList(OrderListRequest request);
 
     String queryOrderState(String outTradeNo);
+
+    JsonData createOrder(CreateOrderRequest request);
 }
