@@ -1,5 +1,6 @@
 package com.mo.service;
 
+import com.mo.model.EventMessage;
 import com.mo.request.CreateOrderRequest;
 import com.mo.request.OrderListRequest;
 import com.mo.utils.JsonData;
@@ -15,4 +16,6 @@ public interface OrderService {
     String queryOrderState(String outTradeNo);
 
     JsonData createOrder(CreateOrderRequest request);
+
+    Boolean closeOrder(EventMessage eventMessage);
 }

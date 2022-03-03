@@ -9,7 +9,7 @@ public enum OrderPayTypeEnum {
     /**
      * 微信支付
      */
-    WECHAT,
+    WECHAT_PAY,
 
     /**
      * 支付支付

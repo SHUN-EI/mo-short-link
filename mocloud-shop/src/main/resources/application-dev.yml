@@ -68,3 +68,44 @@ spring:
         min-idle: 100
         # 连接池最大阻塞等待时间（使用负值表示没有限制）
         max-wait: 180000
+  rabbitmq:   #消息队列
+    host: 39.108.182.26
+    port: 5672
+    virtual-host: /
+    username: admin
+    password: mo12345
+    listener:  #开启手动确认消息
+      simple:
+        #消息确认方式，manual(手动ack) 和auto(自动ack); 消息消费重试到达指定次数进到异常交换机和异常队列，需要改为自动ack确认消息
+        acknowledge-mode: auto
+        retry:
+          #开启重试，消费者代码不能添加try catch捕获不往外抛异常
+          enabled: true
+          #最大重试次数
+          max-attempts: 4
+          #重试消息的时间间隔，5秒
+          initial-interval: 5000
+
+#自定义消息队列配置，关单消息-》延迟exchange-》order.close.delay.queue-》死信exchange-》order.close.queue
+mqconfig:
+  #交换机，延迟exchange
+  order_event_exchange: order.event.exchange
+  #延迟队列，不能被监听消费
+  order_close_delay_queue: order.close.delay.queue
+  #关单队列，延迟队列的消息过期后转发的队列-死信队列
+  order_close_queue: order.close.queue
+  #进入延迟队列的路由key
+  order_close_delay_routing_key: order.close.delay.routing.key
+  #消息过期，进入死信队列的key
+  order_close_routing_key: order.close.routing.key
+  #消息过期时间,毫秒,测试改为15秒-15000
+  ttl: 300000 # 订单5分钟超时未支付则关闭
+
+#自定义异常消息队列配置,消费消息重试一定次数后，用特定的routingKey转发到指定的交换机中，方便后续排查和告警
+mqerrorconfig:
+  #异常交换机
+  order_error_exchange: order.error.exchange
+  #异常消息队列
+  order_error_queue: order.error.queue
+  #异常消息的routingKey
+  order_error_routing_key: order.error.routing.key

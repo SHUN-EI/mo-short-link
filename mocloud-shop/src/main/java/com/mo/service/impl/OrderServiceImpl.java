@@ -1,11 +1,13 @@
 package com.mo.service.impl;
 
+import com.mo.config.RabbitMQConfig;
 import com.mo.constant.TimeConstant;
 import com.mo.enums.*;
 import com.mo.exception.BizException;
 import com.mo.interceptor.LoginInterceptor;
 import com.mo.manager.ProductManager;
 import com.mo.manager.ProductOrderManager;
+import com.mo.model.EventMessage;
 import com.mo.model.LoginUserDTO;
 import com.mo.model.ProductDO;
 import com.mo.model.ProductOrderDO;
@@ -17,6 +19,7 @@ import com.mo.utils.JsonUtil;
 import com.mo.utils.OrderCodeGenerateUtil;
 import com.mo.vo.PayInfoVO;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -38,6 +41,11 @@ public class OrderServiceImpl implements OrderService {
     private ProductManager productManager;
     @Autowired
     private OrderCodeGenerateUtil orderCodeGenerateUtil;
+    @Autowired
+    private RabbitTemplate rabbitTemplate;
+    @Autowired
+    private RabbitMQConfig rabbitMQConfig;
+
 
     /**
      * 创建订单
@@ -74,8 +82,40 @@ public class OrderServiceImpl implements OrderService {
                 .orderPayTimeoutMills(TimeConstant.ORDER_PAY_TIMEOUT_MILLS)
                 .build();
 
+        //发送延迟消息-用于自动关单
+        sendOrderCloseMessage(outTradeNo, loginUserDTO.getAccountNo());
 
         return null;
+    }
+
+    /**
+     * 延迟队列监听，关闭订单
+     *
+     * @param eventMessage
+     * @return
+     */
+    @Override
+    public Boolean closeOrder(EventMessage eventMessage) {
+        return null;
+    }
+
+    /**
+     * 发送延迟消息-用于自动关单
+     *
+     * @param outTradeNo
+     * @param accountNo
+     */
+    private void sendOrderCloseMessage(String outTradeNo, Long accountNo) {
+
+        EventMessage eventMessage = EventMessage.builder()
+                .eventMessageType(EventMessageTypeEnum.ORDER_NEW.name())
+                .accountNo(accountNo)
+                .bizId(outTradeNo)
+                .build();
+
+        rabbitTemplate.convertAndSend(rabbitMQConfig.getOrderEventExchange(),
+                rabbitMQConfig.getOrderCloseDelayRoutingKey(), eventMessage);
+
     }
 
     /**
@@ -127,6 +167,7 @@ public class OrderServiceImpl implements OrderService {
      * 订单验证价格
      * 如果有优惠券或者其他抵扣
      * 验证前端显示和后台计算价格
+     *
      * @param productDO
      * @param request
      */

@@ -49,7 +49,12 @@ public enum EventMessageTypeEnum {
     /**
      * 短链删除 B端
      */
-    SHORT_LINK_DEL_MAPPING;
+    SHORT_LINK_DEL_MAPPING,
+
+    /**
+     * 新建商品订单
+     */
+    ORDER_NEW;
 
 
 }
