@@ -14,4 +14,14 @@ public class CacheKey {
      * 订单-流水号缓存key前缀
      */
     public static final String ORDER_CODE_CACHE_PREFIX_KEY = "ORDER_CODE_CACHE:";
+
+    /**
+     * 订单-防重提交缓存key前缀
+     */
+    public static final String ORDER_REPEAT_SUBMIT_KEY = "order-server:repeat_submit:";
+
+    /**
+     * 订单-防重提交缓存token-key前缀，第一个%s是user_id,第二个%s是token
+     */
+    public static final String ORDER_REPEAT_SUBMIT_TOKEN_KEY = "order:submit:%s:%s";
 }

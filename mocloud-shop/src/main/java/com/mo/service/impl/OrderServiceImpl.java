@@ -125,7 +125,8 @@ public class OrderServiceImpl implements OrderService {
 
     /**
      * 订单验证价格
-     *
+     * 如果有优惠券或者其他抵扣
+     * 验证前端显示和后台计算价格
      * @param productDO
      * @param request
      */

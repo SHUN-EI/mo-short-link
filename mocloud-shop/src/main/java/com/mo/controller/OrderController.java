@@ -1,6 +1,10 @@
 package com.mo.controller;
 
+import com.mo.aop.RepeatSubmit;
+import com.mo.constant.CacheKey;
 import com.mo.enums.BizCodeEnum;
+import com.mo.interceptor.LoginInterceptor;
+import com.mo.model.LoginUserDTO;
 import com.mo.request.CreateOrderRequest;
 import com.mo.request.OrderListRequest;
 import com.mo.service.OrderService;
@@ -12,10 +16,12 @@ import io.swagger.annotations.ApiParam;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletResponse;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Created by mo on 2022/3/1
@@ -28,18 +34,38 @@ public class OrderController {
 
     @Autowired
     private OrderService orderService;
+    @Autowired
+    private RedisTemplate redisTemplate;
+
 
     @ApiOperation("创建订单")
     @PostMapping("/createOrder")
+    //@RepeatSubmit(limitType = RepeatSubmit.Type.PARAM)
     public void createOrder(@ApiParam("创建订单对象") @RequestBody CreateOrderRequest request, HttpServletResponse response) {
         JsonData jsonData = orderService.createOrder(request);
 
         if (jsonData.getCode() == 0) {
             log.info("创建订单成功:{}", jsonData.getData());
-        }else {
+        } else {
             log.error("创建订单失败:{}", jsonData.getData());
             CommonUtil.sendJsonMessage(response, jsonData);
         }
+    }
+
+    @ApiOperation("获取提交订单令牌")
+    @GetMapping("/getOrderSubmitToken")
+    public JsonData getOrderSubmitToken() {
+
+        LoginUserDTO loginUserDTO = LoginInterceptor.threadLocal.get();
+        String token = CommonUtil.getStringNumRandom(32);
+        //key是 order:submit:accountNo:token,然后直接删除成功则完成
+        String key = String.format(CacheKey.ORDER_REPEAT_SUBMIT_TOKEN_KEY, loginUserDTO.getAccountNo(), token);
+
+        //令牌有效时间是30分钟
+        redisTemplate.opsForValue().set(key, token, 30, TimeUnit.MINUTES);
+
+        return JsonData.buildSuccess(token);
+
     }
 
     @ApiOperation("分页查询订单列表")
