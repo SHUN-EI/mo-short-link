@@ -109,3 +109,26 @@ mqerrorconfig:
   order_error_queue: order.error.queue
   #异常消息的routingKey
   order_error_routing_key: order.error.routing.key
+
+#微信支付配置
+wechatpay:
+  #商户号
+  mch-id: 1601644442
+  #公众号id 需要和商户号绑定
+  wx-pay-appid: wx5beac15ca207c40c
+  #商户证书序列号,需要和证书对应
+  mch-serial-no: 7064ADC5FE84CA2A3DDE71A692E39602DEB96E61
+  #API V3密钥
+  api-v3-key: aFR9a0wWjITE5n2oKNP5lfYesxdclass
+  #商户私钥路径（微信服务端会根据证书序列号，找到证书获取公钥进行解密数据）
+  private-key-path: classpath:/cert/apiclient_key.pem
+  #支付成功页面跳转
+  success-return-url: https://xdclass.net
+  #支付成功，回调通知
+  callback-url: http://api.open1024.com/shop-server/api/callback/order/v1/wechat
+
+
+
+
+
+

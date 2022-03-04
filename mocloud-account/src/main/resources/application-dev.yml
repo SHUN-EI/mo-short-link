@@ -91,7 +91,7 @@ sms:
 #阿里云OSS配置
 #aliyun:
 #  oss:
-#    endpoint: oss-cn-shenzhen.aliyuncs.com
-#    access-key-id: LTAI5tPQHJvmvENFb5J8tUKG
-#    access-key-secret: DNI7wU7HqeF9UUReByft5i8F7eJ6HX
+#    #endpoint: oss-cn-shenzhen.aliyuncs.com
+#    #access-key-id: LTAI5tPQHJvmvENFb5J8tUKG
+#    #access-key-secret: DNI7wU7HqeF9UUReByft5i8F7eJ6HX
 #    bucketname: mo-short-link-account-service
