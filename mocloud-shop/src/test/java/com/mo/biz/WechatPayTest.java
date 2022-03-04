@@ -47,6 +47,42 @@ public class WechatPayTest {
 
 
     /**
+     * Native订单-关闭订单
+     */
+    @Test
+    public void testNativeCloseOrder() {
+        //订单号
+        String outTradeNo = "XD220305000000000798";
+
+        JSONObject payObj = new JSONObject();
+        payObj.put("mchid", wechatPayConfig.getMchId());
+
+        // 处理请求body参数
+        String body = payObj.toJSONString();
+        log.info("请求参数:{}", body);
+
+        //将请求参数设置到请求对象中
+        StringEntity entity = new StringEntity(body, "utf-8");
+        entity.setContentType("application/json");
+
+        String url = String.format(WechatPayApiConfig.NATIVE_CLOSE_ORDER, outTradeNo);
+        HttpPost httpPost = new HttpPost(url);
+        httpPost.setHeader("Accept", "application/json");
+        httpPost.setEntity(entity);
+
+        try (CloseableHttpResponse response = wechatPayClient.execute(httpPost);) {
+
+            //响应码
+            int statusCode = response.getStatusLine().getStatusCode();
+            log.info("关闭订单响应码:{},无响应体",statusCode);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    /**
      * Native订单状态查询, 根据商户订单号查询
      * 1.testWechatPayNativeOrder 先生成订单号
      * 2.testWechatPayNativeQuery 再查询订单状态
@@ -64,7 +100,7 @@ public class WechatPayTest {
             //响应码
             int statusCode = response.getStatusLine().getStatusCode();
             //响应体
-             String responseStr = EntityUtils.toString(response.getEntity());
+            String responseStr = EntityUtils.toString(response.getEntity());
             log.info("native查询订单状态响应码:{},响应体:{}", statusCode, responseStr);
         } catch (Exception e) {
             e.printStackTrace();

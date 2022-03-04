@@ -21,6 +21,11 @@ public class WechatPayApiConfig {
      */
     public static final String NATIVE_QUERY = HOST+ "/v3/pay/transactions/out-trade-no/%s?mchid=%s";
 
+    /**
+     * Native订单-关闭订单
+     */
+    public static final String NATIVE_CLOSE_ORDER = HOST+ "/v3/pay/transactions/out-trade-no/%s/close";
+
 
 
 }
