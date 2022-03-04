@@ -10,6 +10,7 @@ import com.mo.utils.OrderCodeGenerateUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.http.HttpHost;
 import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
@@ -44,8 +45,35 @@ public class WechatPayTest {
     @Autowired
     private CloseableHttpClient wechatPayClient;
 
+
     /**
-     *测试 Native下单，相关参数验证
+     * Native订单状态查询, 根据商户订单号查询
+     * 1.testWechatPayNativeOrder 先生成订单号
+     * 2.testWechatPayNativeQuery 再查询订单状态
+     */
+    @Test
+    public void testWechatPayNativeQuery() {
+        //订单号
+        String outTradeNo = "XD220305000000000798";
+        String url = String.format(WechatPayApiConfig.NATIVE_QUERY, outTradeNo, wechatPayConfig.getMchId());
+
+        HttpGet httpGet = new HttpGet(url);
+        httpGet.setHeader("Accept", "application/json");
+
+        try (CloseableHttpResponse response = wechatPayClient.execute(httpGet);) {
+            //响应码
+            int statusCode = response.getStatusLine().getStatusCode();
+            //响应体
+             String responseStr = EntityUtils.toString(response.getEntity());
+            log.info("native查询订单状态响应码:{},响应体:{}", statusCode, responseStr);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+
+    /**
+     * 测试 Native下单，相关参数验证
      */
     @Test
     public void testWechatPayNativeOrder() {
@@ -102,6 +130,7 @@ public class WechatPayTest {
 
     /**
      * 测试读取微信支付私钥
+     *
      * @throws IOException
      */
     @Test

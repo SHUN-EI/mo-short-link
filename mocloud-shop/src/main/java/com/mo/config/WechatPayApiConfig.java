@@ -16,5 +16,11 @@ public class WechatPayApiConfig {
      */
     public static final String NATIVE_ORDER = HOST + "/v3/pay/transactions/native";
 
+    /**
+     * Native订单状态查询, 根据商户订单号查询
+     */
+    public static final String NATIVE_QUERY = HOST+ "/v3/pay/transactions/out-trade-no/%s?mchid=%s";
+
+
 
 }
