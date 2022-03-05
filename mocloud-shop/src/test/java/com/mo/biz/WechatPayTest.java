@@ -48,6 +48,34 @@ public class WechatPayTest {
 
 
     /**
+     * Native订单-查询退款状态
+     */
+    @Test
+    public void testNativeRefundQuery() {
+        //退款单号
+        String refundNo = "TK220305000000005478";
+
+        String url = String.format(WechatPayApiConfig.NATIVE_REFUND_QUERY, refundNo);
+        HttpGet httpGet = new HttpGet(url);
+        httpGet.setHeader("Accept", "application/json");
+
+        try (CloseableHttpResponse response = wechatPayClient.execute(httpGet)) {
+
+            //响应码
+            int statusCode = response.getStatusLine().getStatusCode();
+            //响应体
+            String responseStr = EntityUtils.toString(response.getEntity());
+
+            log.info("查询订单退款状态 响应码:{},响应体:{}",statusCode,responseStr);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+
+    }
+
+    /**
      * Native订单-申请退款
      */
     @Test
@@ -92,7 +120,7 @@ public class WechatPayTest {
             //响应体
             String responseStr = EntityUtils.toString(response.getEntity());
 
-            log.info("申请订单退款响应码:{},响应体:{}",statusCode,responseStr);
+            log.info("申请订单退款响应码:{},响应体:{}", statusCode, responseStr);
 
         } catch (Exception e) {
             e.printStackTrace();

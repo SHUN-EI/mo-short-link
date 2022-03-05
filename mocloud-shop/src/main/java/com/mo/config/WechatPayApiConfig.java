@@ -31,6 +31,10 @@ public class WechatPayApiConfig {
      */
     public static final String NATIVE_REFUND_ORDER = HOST+ "/v3/refund/domestic/refunds";
 
+    /**
+     * Native订单-查询退款状态
+     */
+    public static final String NATIVE_REFUND_QUERY = HOST+ "/v3/refund/domestic/refunds/%s";
 
 
 }

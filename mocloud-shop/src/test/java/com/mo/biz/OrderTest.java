@@ -25,7 +25,9 @@ public class OrderTest {
     @Test
     public void testOrderCodeGenerate() {
         String orderCode = orderCodeGenerateUtil.generateOrderCode(OrderCodeEnum.XD);
+        String refundOrderCode = orderCodeGenerateUtil.generateOrderCode(OrderCodeEnum.TK);
         log.info("自动生成的订单号:{}", orderCode);
+        log.info("自动生成的退款单号:{}", refundOrderCode);
         //自动生成的订单号:XD220302000000006183
         //自动生成的订单号:XD220302000000011160
     }
