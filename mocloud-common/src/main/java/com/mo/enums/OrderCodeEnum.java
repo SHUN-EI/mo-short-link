@@ -26,7 +26,13 @@ public enum OrderCodeEnum {
      * 自动生成的订单号:XD210429000000018073
      * redis里面的key是 ORDER_CODE_CACHE:210501(6位日期数)，可以方便统计每一天的订单总数
      */
-    XD("XD", OrderCodeConstant.SERIAL_YYMMDD_PREFIX, 8, 4, 20);
+    XD("XD", OrderCodeConstant.SERIAL_YYMMDD_PREFIX, 8, 4, 20),
+
+
+    /**
+     * 退款单
+     */
+    TK("TK", OrderCodeConstant.SERIAL_YYMMDD_PREFIX, 8, 4, 20);
 
     /**
      * 订单号前缀

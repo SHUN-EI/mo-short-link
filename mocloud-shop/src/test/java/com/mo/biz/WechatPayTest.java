@@ -15,6 +15,7 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.util.EntityUtils;
+import org.bouncycastle.asn1.crmf.PKIPublicationInfo;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,6 +48,60 @@ public class WechatPayTest {
 
 
     /**
+     * Native订单-申请退款
+     */
+    @Test
+    public void testNativeRefundOrder() {
+
+        //订单号
+        String outTradeNo = "XD220305000000000798";
+        //退款单号
+        String refundNo = orderCodeGenerateUtil.generateOrderCode(OrderCodeEnum.TK);
+
+        //请求body参数
+        JSONObject refundObj = new JSONObject();
+
+        refundObj.put("out_trade_no", outTradeNo);
+        //退款单编号，商户系统内部的退款单号，商户系统内部唯一，
+        // 只能是数字、大小写字母_-|*@ ，同一退款单号多次请求只退一笔
+        refundObj.put("out_refund_no", refundNo);
+        refundObj.put("reason", "商品已售完");
+        refundObj.put("notify_url", wechatPayConfig.getCallbackUrl());
+
+        JSONObject amountObj = new JSONObject();
+        //退款金额
+        amountObj.put("refund", 10);
+        //实际支付的总金额
+        amountObj.put("total", 100);
+        amountObj.put("currency", "CNY");
+        refundObj.put("amount", amountObj);
+
+        String body = refundObj.toJSONString();
+        log.info("请求参数:{}", body);
+
+        StringEntity entity = new StringEntity(body, "utf-8");
+        entity.setContentType("application/json");
+        HttpPost httpPost = new HttpPost(WechatPayApiConfig.NATIVE_REFUND_ORDER);
+        httpPost.setHeader("Accept", "application/json");
+        httpPost.setEntity(entity);
+
+        try (CloseableHttpResponse response = wechatPayClient.execute(httpPost)) {
+
+            //响应码
+            int statusCode = response.getStatusLine().getStatusCode();
+            //响应体
+            String responseStr = EntityUtils.toString(response.getEntity());
+
+            log.info("申请订单退款响应码:{},响应体:{}",statusCode,responseStr);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+
+    }
+
+    /**
      * Native订单-关闭订单
      */
     @Test
@@ -74,7 +129,7 @@ public class WechatPayTest {
 
             //响应码
             int statusCode = response.getStatusLine().getStatusCode();
-            log.info("关闭订单响应码:{},无响应体",statusCode);
+            log.info("关闭订单响应码:{},无响应体", statusCode);
 
         } catch (Exception e) {
             e.printStackTrace();
