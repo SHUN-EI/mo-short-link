@@ -27,7 +27,7 @@ import java.util.stream.Collectors;
 
 /**
  * Created by mo on 2022/3/4
- * 微信支付相关
+ * 微信支付相关工具类
  */
 @Configuration
 @Slf4j
