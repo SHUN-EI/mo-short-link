@@ -1,5 +1,6 @@
 package com.mo.service.impl;
 
+import com.mo.component.PayFactory;
 import com.mo.config.RabbitMQConfig;
 import com.mo.constant.TimeConstant;
 import com.mo.enums.*;
@@ -27,6 +28,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -46,6 +48,8 @@ public class OrderServiceImpl implements OrderService {
     private RabbitTemplate rabbitTemplate;
     @Autowired
     private RabbitMQConfig rabbitMQConfig;
+    @Autowired
+    private PayFactory payFactory;
 
 
     /**
@@ -86,7 +90,16 @@ public class OrderServiceImpl implements OrderService {
         //发送延迟消息-用于自动关单
         sendOrderCloseMessage(outTradeNo, loginUserDTO.getAccountNo());
 
-        return null;
+        //调用支付
+        String codeUrl = payFactory.pay(payInfoVO);
+        if (StringUtils.isNotBlank(codeUrl)) {
+            Map<String, String> resultMap = new HashMap<>();
+            resultMap.put("code_url", codeUrl);
+            resultMap.put("out_trade_no", outTradeNo);
+            return JsonData.buildSuccess(resultMap);
+        }
+
+        return JsonData.buildResult(BizCodeEnum.PAY_ORDER_FAIL);
     }
 
     /**
