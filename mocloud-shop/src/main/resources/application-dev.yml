@@ -125,7 +125,7 @@ wechatpay:
   #支付成功页面跳转
   success-return-url: https://xdclass.net
   #支付成功，回调通知
-  callback-url: http://api.open1024.com/shop-server/api/callback/order/v1/wechat
+  callback-url: http://qc65aj.natappfree.cc/api/pay/v1/wechatPayCallback
 
 #支付宝支付配置
 alipay:
