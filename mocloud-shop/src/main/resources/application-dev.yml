@@ -100,6 +100,20 @@ mqconfig:
   order_close_routing_key: order.close.routing.key
   #消息过期时间,毫秒,测试改为15秒-15000
   ttl: 300000 # 订单5分钟超时未支付则关闭
+  #更新订单状态队列
+  order_update_queue: order.update.queue
+  #订单发放流量包队列
+  order_update_traffic_queue: order.update.traffic.queue
+  #订单更新状态和发放流量包，具体的routingKey,【发送消息使用】
+  order_update_traffic_routing_key: order.update.traffic.routing.key
+  #进入更新订单状态队列的路由key
+  order_update_binding_key: order.update.*.routing.key
+  #进入订单发放流量包队列的路由key
+  order_update_traffic_binding_key: order.*.traffic.routing.key
+
+
+
+
 
 #自定义异常消息队列配置,消费消息重试一定次数后，用特定的routingKey转发到指定的交换机中，方便后续排查和告警
 mqerrorconfig:

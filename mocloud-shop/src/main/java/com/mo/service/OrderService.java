@@ -1,5 +1,6 @@
 package com.mo.service;
 
+import com.mo.enums.OrderPayTypeEnum;
 import com.mo.model.EventMessage;
 import com.mo.request.CreateOrderRequest;
 import com.mo.request.OrderListRequest;
@@ -18,4 +19,6 @@ public interface OrderService {
     JsonData createOrder(CreateOrderRequest request);
 
     Boolean closeOrder(EventMessage eventMessage);
+
+    JsonData processOrderCallbackMsg(OrderPayTypeEnum orderPayType, Map<String, String> paramsMap);
 }

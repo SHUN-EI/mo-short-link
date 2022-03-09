@@ -127,5 +127,71 @@ public class RabbitMQConfig {
         return new Binding(orderCloseQueue, Binding.DestinationType.QUEUE, orderEventExchange, orderCloseRoutingKey, null);
     }
 
+    /**
+     * 更新订单状态队列
+     */
+    private String orderUpdateQueue;
+    /**
+     * 订单发放流量包队列
+     */
+    private String orderUpdateTrafficQueue;
+    /**
+     * 订单更新状态和发放流量包，具体的routingKey,【发送消息使用】
+     */
+    private String orderUpdateTrafficRoutingKey;
+    /**
+     * 进入更新订单状态队列的路由key
+     * 用于绑定更新订单状态队列和交换机的
+     */
+    private String orderUpdateBindingKey;
+    /**
+     * 进入订单发放流量包队列的路由key
+     * 用于绑定订单发放流量包队列和交换机的
+     */
+    private String orderUpdateTrafficBindingKey;
+
+
+    /**
+     * 更新订单状态队列
+     * 普通队列，用于被监听消费
+     *
+     * @return
+     */
+    @Bean
+    public Queue orderUpdateQueue() {
+        return new Queue(orderUpdateQueue, true, false, false);
+    }
+
+    /**
+     * 订单发放流量包队列
+     * 普通队列，用于被监听消费
+     *
+     * @return
+     */
+    @Bean
+    public Queue orderUpdateTrafficQueue() {
+        return new Queue(orderUpdateTrafficQueue, true, false, false);
+    }
+
+    /**
+     * 更新订单状态队列 与交换机的绑定关系建立
+     *
+     * @return
+     */
+    @Bean
+    public Binding orderUpdateQueueBinding() {
+        return new Binding(orderUpdateQueue, Binding.DestinationType.QUEUE, orderEventExchange, orderUpdateBindingKey, null);
+    }
+
+    /**
+     * 订单发放流量包队列 与交换机的绑定关系建立
+     *
+     * @return
+     */
+    @Bean
+    public Binding orderUpdateTrafficQueueBinding() {
+        return new Binding(orderUpdateTrafficQueue, Binding.DestinationType.QUEUE, orderEventExchange, orderUpdateTrafficBindingKey, null);
+    }
+
 
 }

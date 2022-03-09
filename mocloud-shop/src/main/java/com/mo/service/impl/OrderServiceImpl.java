@@ -2,6 +2,7 @@ package com.mo.service.impl;
 
 import com.mo.component.PayFactory;
 import com.mo.config.RabbitMQConfig;
+import com.mo.constant.PayConstant;
 import com.mo.constant.TimeConstant;
 import com.mo.enums.*;
 import com.mo.exception.BizException;
@@ -23,6 +24,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,6 +32,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Created by mo on 2022/3/1
@@ -50,6 +53,8 @@ public class OrderServiceImpl implements OrderService {
     private RabbitMQConfig rabbitMQConfig;
     @Autowired
     private PayFactory payFactory;
+    @Autowired
+    private RedisTemplate<Object, Object> redisTemplate;
 
 
     /**
@@ -100,6 +105,112 @@ public class OrderServiceImpl implements OrderService {
         }
 
         return JsonData.buildResult(BizCodeEnum.PAY_ORDER_FAIL);
+    }
+
+    /**
+     * 支付结果回调通知
+     *
+     * @param orderPayType
+     * @param paramsMap
+     * @return
+     */
+    @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
+    @Override
+    public JsonData processOrderCallbackMsg(OrderPayTypeEnum orderPayType, Map<String, String> paramsMap) {
+
+        if (orderPayType.name().equalsIgnoreCase(OrderPayTypeEnum.WECHAT_PAY.name())) {
+            //微信支付回调处理
+            //获取商户订单号
+            String outTradeNo = paramsMap.get("out_trade_no");
+            //交易状态
+            String tradeState = paramsMap.get("trade_state");
+            Long accountNo = Long.valueOf(paramsMap.get("account_no"));
+
+            ProductOrderDO productOrderDO = productOrderManager.findByOutTradeNoAndAccountNo(outTradeNo, accountNo);
+
+            //构建消息，把订单的商品信息存到MQ
+            //空间换时间，订单消费者和流量包消费者监听到消息，可以直接操作数据库
+            Map<String, Object> content = new HashMap<>(4);
+            content.put("outTradeNo", outTradeNo);
+            content.put("buyNum", productOrderDO.getBuyNum());
+            content.put("accountNo", productOrderDO.getAccountNo());
+            //商品快照
+            content.put("product", productOrderDO.getProductSnapshot());
+
+            //构建消息
+            EventMessage eventMessage = EventMessage.builder()
+                    .bizId(outTradeNo)
+                    .accountNo(accountNo)
+                    .messageId(outTradeNo)
+                    .content(JsonUtil.obj2Json(content))
+                    .eventMessageType(EventMessageTypeEnum.ORDER_PAY.name())
+                    .build();
+
+            //支付成功
+            if (PayConstant.WECHAT_PAY_SUCCESS.equalsIgnoreCase(tradeState)) {
+                //微信支付成功,发送消息到mq
+                //因为微信支付回调会不间断通知
+                //微信会通过一定的策略定期重新发起通知，尽可能提高通知的成功率，
+                //但微信不保证通知最终能成功。（通知频率为15s/15s/30s/3m/10m/20m/30m/30m/30m/60m/3h/3h/3h/6h/6h - 总计 24h4m）
+                Boolean flag = redisTemplate.opsForValue().setIfAbsent(outTradeNo, "pay_ok", 3, TimeUnit.DAYS);
+
+                //如果key不存在，则设置成功，返回true
+                if (flag){
+                    rabbitTemplate.convertAndSend(rabbitMQConfig.getOrderEventExchange(),
+                            rabbitMQConfig.getOrderUpdateTrafficRoutingKey(),
+                            eventMessage);
+
+                    return JsonData.buildSuccess();
+                }
+
+            }
+
+        } else if (orderPayType.name().equalsIgnoreCase(OrderPayTypeEnum.ALIPAY.name())) {
+            //支付宝支付回调处理
+
+            //支付宝支付,获取订单号和交易状态
+            String outTradeNo = paramsMap.get("out_trade_no");
+            String tradeStatus = paramsMap.get("trade_status");
+            Long accountNo = Long.valueOf(paramsMap.get("account_no"));
+
+            ProductOrderDO productOrderDO = productOrderManager.findByOutTradeNoAndAccountNo(outTradeNo, accountNo);
+            //构建消息，把订单的商品信息存到MQ
+            //空间换时间，订单消费者和流量包消费者监听到消息，可以直接操作数据库
+            Map<String, Object> content = new HashMap<>(4);
+            content.put("outTradeNo", outTradeNo);
+            content.put("buyNum", productOrderDO.getBuyNum());
+            content.put("accountNo", productOrderDO.getAccountNo());
+            //商品快照
+            content.put("product", productOrderDO.getProductSnapshot());
+
+            //构建消息
+            EventMessage eventMessage = EventMessage.builder()
+                    .bizId(outTradeNo)
+                    .accountNo(accountNo)
+                    .messageId(outTradeNo)
+                    .content(JsonUtil.obj2Json(content))
+                    .eventMessageType(EventMessageTypeEnum.ORDER_PAY.name())
+                    .build();
+
+            //支付成功
+            if (PayConstant.ALI_PAY_TRADE_SUCCESS.equalsIgnoreCase(tradeStatus)
+                    || PayConstant.ALI_PAY_TRADE_FINISHED.equalsIgnoreCase(tradeStatus)) {
+
+                Boolean flag = redisTemplate.opsForValue().setIfAbsent(outTradeNo, "pay_ok", 3, TimeUnit.DAYS);
+                //如果key不存在，则设置成功，返回true
+                if(flag){
+                    //支付宝支付成功,发送消息到mq
+                    rabbitTemplate.convertAndSend(rabbitMQConfig.getOrderEventExchange(),
+                            rabbitMQConfig.getOrderUpdateTrafficRoutingKey(),
+                            eventMessage);
+
+                    return JsonData.buildSuccess();
+
+                }
+            }
+        }
+
+        return JsonData.buildResult(BizCodeEnum.PAY_ORDER_CALLBACK_NOT_SUCCESS);
     }
 
     /**

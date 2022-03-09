@@ -2,6 +2,9 @@ package com.mo.controller;
 
 import com.alibaba.fastjson.JSONObject;
 import com.mo.config.WechatPayConfig;
+import com.mo.enums.OrderPayTypeEnum;
+import com.mo.service.OrderService;
+import com.mo.utils.JsonData;
 import com.wechat.pay.contrib.apache.httpclient.auth.ScheduledUpdateCertificatesVerifier;
 import com.wechat.pay.contrib.apache.httpclient.util.AesUtil;
 import io.swagger.annotations.Api;
@@ -39,6 +42,8 @@ public class PayController {
     private ScheduledUpdateCertificatesVerifier verifier;
     @Autowired
     private WechatPayConfig wechatPayConfig;
+    @Autowired
+    private OrderService orderService;
 
 
     @ApiOperation("微信支付回调")
@@ -66,7 +71,7 @@ public class PayController {
         String signStr = Stream.of(timestamp, nonceStr, body).
                 collect(Collectors.joining("\n", "", "\n"));
 
-        Map<String, String> map = new HashMap<>(2);
+        Map<String, String> resultmap = new HashMap<>(2);
 
         try {
             //验证签名（确保是微信传输过来的）
@@ -79,18 +84,19 @@ public class PayController {
 
                 Map<String, String> paramsMap = convertWechatPayMsgToMap(plainBody);
 
-                //处理业务逻辑 TODO
+                //处理业务逻辑
+                JsonData jsonData =orderService.processOrderCallbackMsg(OrderPayTypeEnum.WECHAT_PAY,paramsMap);
 
                 //响应微信,通知应答, 支付成功
-                map.put("code", "SUCCESS");
-                map.put("message", "成功");
+                resultmap.put("code", "SUCCESS");
+                resultmap.put("message", "成功");
             }
 
         } catch (Exception e) {
             log.error("微信支付回调异常:{}", e);
         }
 
-        return map;
+        return resultmap;
     }
 
     /**
@@ -106,11 +112,11 @@ public class PayController {
         JSONObject jsonObject = JSONObject.parseObject(plainBody);
 
         //商户订单号
-        paramsMap.put("out_trade_no",jsonObject.getString("out_trade_no"));
+        paramsMap.put("out_trade_no", jsonObject.getString("out_trade_no"));
         //交易状态
-        paramsMap.put("trade_state",jsonObject.getString("trade_state"));
+        paramsMap.put("trade_state", jsonObject.getString("trade_state"));
         //附加数据
-        paramsMap.put("account_no",jsonObject.getJSONObject("attach").getString("accountNo"));
+        paramsMap.put("account_no", jsonObject.getJSONObject("attach").getString("accountNo"));
 
         return paramsMap;
     }
