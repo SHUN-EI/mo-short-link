@@ -62,7 +62,8 @@ public class WechatPayStrategy implements PayStrategy {
         payObj.put("amount", amountObj);
 
         //附属参数，可以用在回调携带
-        payObj.put("attach", "{\"accountNo\":" + payInfoVO.getAccountNo() + "}");
+        //attach: accountNo
+        payObj.put("attach", payInfoVO.getAccountNo().toString());
 
         // 处理请求body参数
         String body = payObj.toJSONString();
@@ -103,6 +104,7 @@ public class WechatPayStrategy implements PayStrategy {
 
     /**
      * 查询订单状态
+     *
      * @param payInfoVO
      * @return
      */
@@ -142,6 +144,7 @@ public class WechatPayStrategy implements PayStrategy {
 
     /**
      * 关闭订单
+     *
      * @param payInfoVO
      * @return
      */
@@ -167,17 +170,17 @@ public class WechatPayStrategy implements PayStrategy {
         httpPost.setEntity(entity);
 
         String result = "";
-        try(CloseableHttpResponse response = wechatPayClient.execute(httpPost)){
+        try (CloseableHttpResponse response = wechatPayClient.execute(httpPost)) {
 
             //响应码
             int statusCode = response.getStatusLine().getStatusCode();
-            log.debug("关闭订单响应码:{},无响应体",statusCode);
-            if (statusCode==HttpStatus.NO_CONTENT.value()){
+            log.debug("关闭订单响应码:{},无响应体", statusCode);
+            if (statusCode == HttpStatus.NO_CONTENT.value()) {
                 result = "CLOSE_SUCCESS";
             }
 
-        }catch (Exception e){
-            log.error("微信支付响应异常:{}",e);
+        } catch (Exception e) {
+            log.error("微信支付响应异常:{}", e);
         }
 
         return result;

@@ -107,7 +107,7 @@ public class PayController {
      */
     private Map<String, String> convertWechatPayMsgToMap(String plainBody) {
 
-        Map<String, String> paramsMap = new HashMap<>(2);
+        Map<String, String> paramsMap = new HashMap<>();
 
         JSONObject jsonObject = JSONObject.parseObject(plainBody);
 
@@ -116,7 +116,7 @@ public class PayController {
         //交易状态
         paramsMap.put("trade_state", jsonObject.getString("trade_state"));
         //附加数据
-        paramsMap.put("account_no", jsonObject.getJSONObject("attach").getString("accountNo"));
+        paramsMap.put("account_no",jsonObject.getString("attach"));
 
         return paramsMap;
     }

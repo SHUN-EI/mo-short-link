@@ -10,7 +10,6 @@ import org.springframework.context.annotation.Configuration;
 /**
  * Created by mo on 2022/3/10
  */
-@ConfigurationProperties(prefix = "mqconfig")
 @Configuration
 @Data
 public class RabbitMQConfig {

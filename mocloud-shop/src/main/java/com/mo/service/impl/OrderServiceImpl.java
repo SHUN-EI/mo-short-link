@@ -129,7 +129,7 @@ public class OrderServiceImpl implements OrderService {
             }
 
         } catch (Exception e) {
-            log.error("订单消费者消费失败:{}",eventMessage);
+            log.error("订单消费者消费失败:{}", eventMessage);
             throw new BizException(BizCodeEnum.MQ_CONSUME_EXCEPTION);
         }
     }
@@ -152,7 +152,8 @@ public class OrderServiceImpl implements OrderService {
             String outTradeNo = paramsMap.get("out_trade_no");
             //交易状态
             String tradeState = paramsMap.get("trade_state");
-            Long accountNo = Long.valueOf(paramsMap.get("account_no"));
+
+            Long accountNo = Long.parseLong(paramsMap.get("account_no"));
 
             ProductOrderDO productOrderDO = productOrderManager.findByOutTradeNoAndAccountNo(outTradeNo, accountNo);
 
