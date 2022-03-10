@@ -21,4 +21,6 @@ public interface OrderService {
     Boolean closeOrder(EventMessage eventMessage);
 
     JsonData processOrderCallbackMsg(OrderPayTypeEnum orderPayType, Map<String, String> paramsMap);
+
+    void processOrderMessage(EventMessage eventMessage);
 }

@@ -108,6 +108,34 @@ public class OrderServiceImpl implements OrderService {
     }
 
     /**
+     * 处理 MQ队列里面的订单相关消息
+     *
+     * @param eventMessage
+     */
+    @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
+    @Override
+    public void processOrderMessage(EventMessage eventMessage) {
+
+        String messageType = eventMessage.getEventMessageType();
+
+        try {
+            if (EventMessageTypeEnum.ORDER_PAY.name().equalsIgnoreCase(messageType)) {
+                //订单已经支付，更新订单状态
+                updateOrderState(eventMessage);
+
+            } else if (EventMessageTypeEnum.ORDER_NEW.name().equalsIgnoreCase(messageType)) {
+                //关闭订单
+                closeOrder(eventMessage);
+            }
+
+        } catch (Exception e) {
+            log.error("订单消费者消费失败:{}",eventMessage);
+            throw new BizException(BizCodeEnum.MQ_CONSUME_EXCEPTION);
+        }
+    }
+
+
+    /**
      * 支付结果回调通知
      *
      * @param orderPayType
@@ -155,7 +183,7 @@ public class OrderServiceImpl implements OrderService {
                 Boolean flag = redisTemplate.opsForValue().setIfAbsent(outTradeNo, "pay_ok", 3, TimeUnit.DAYS);
 
                 //如果key不存在，则设置成功，返回true
-                if (flag){
+                if (flag) {
                     rabbitTemplate.convertAndSend(rabbitMQConfig.getOrderEventExchange(),
                             rabbitMQConfig.getOrderUpdateTrafficRoutingKey(),
                             eventMessage);
@@ -198,7 +226,7 @@ public class OrderServiceImpl implements OrderService {
 
                 Boolean flag = redisTemplate.opsForValue().setIfAbsent(outTradeNo, "pay_ok", 3, TimeUnit.DAYS);
                 //如果key不存在，则设置成功，返回true
-                if(flag){
+                if (flag) {
                     //支付宝支付成功,发送消息到mq
                     rabbitTemplate.convertAndSend(rabbitMQConfig.getOrderEventExchange(),
                             rabbitMQConfig.getOrderUpdateTrafficRoutingKey(),
@@ -211,6 +239,25 @@ public class OrderServiceImpl implements OrderService {
         }
 
         return JsonData.buildResult(BizCodeEnum.PAY_ORDER_CALLBACK_NOT_SUCCESS);
+    }
+
+    /**
+     * 更新订单状态
+     *
+     * @param eventMessage
+     * @return
+     */
+    public JsonData updateOrderState(EventMessage eventMessage) {
+        String outTradeNo = eventMessage.getBizId();
+        Long accountNo = eventMessage.getAccountNo();
+
+        Integer rows = productOrderManager.updateOrderPayState(outTradeNo, accountNo,
+                OrderStateEnum.PAY.name(), OrderStateEnum.NEW.name());
+
+        log.info("订单更新成功:rows={},eventMessage={}", rows, eventMessage);
+
+        return JsonData.buildSuccess(rows);
+
     }
 
     /**

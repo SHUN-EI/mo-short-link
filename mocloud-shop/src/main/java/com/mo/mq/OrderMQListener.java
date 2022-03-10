@@ -7,6 +7,7 @@ import com.mo.service.OrderService;
 import com.rabbitmq.client.Channel;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.core.Message;
+import org.springframework.amqp.rabbit.annotation.Queue;
 import org.springframework.amqp.rabbit.annotation.RabbitHandler;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,7 +16,10 @@ import org.springframework.stereotype.Component;
 /**
  * Created by mo on 2022/3/3
  */
-@RabbitListener(queues = "${mqconfig.order_close_queue}")
+@RabbitListener(queuesToDeclare = {
+        @Queue(value = "${mqconfig.order_close_queue}"),
+        @Queue(value = "${mqconfig.order_update_queue}")
+})
 @Component
 @Slf4j
 public class OrderMQListener {
@@ -30,8 +34,8 @@ public class OrderMQListener {
 
         try {
 
-            //关闭订单
-            orderService.closeOrder(eventMessage);
+            //处理订单相关消息
+            orderService.processOrderMessage(eventMessage);
             log.info("消费成功:{}", eventMessage);
 
         } catch (Exception e) {
