@@ -114,6 +114,10 @@ sms:
 #    access-key-secret:
 #    bucketname: mo-short-link-account-service
 
+mqconfig:
+  #订单发放流量包队列
+  order_update_traffic_queue: order.update.traffic.queue
+
 #自定义异常消息队列配置,消费消息重试一定次数后，用特定的routingKey转发到指定的交换机中，方便后续排查和告警
 mqerrorconfig:
   #异常交换机

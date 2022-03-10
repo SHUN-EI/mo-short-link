@@ -82,7 +82,7 @@ public class WechatPayTest {
     public void testNativeRefundOrder() {
 
         //订单号
-        String outTradeNo = "XD220305000000000798";
+        String outTradeNo = "XD220310000000039605";
         //退款单号
         String refundNo = orderCodeGenerateUtil.generateOrderCode(OrderCodeEnum.TK);
 
@@ -98,7 +98,7 @@ public class WechatPayTest {
 
         JSONObject amountObj = new JSONObject();
         //退款金额
-        amountObj.put("refund", 10);
+        amountObj.put("refund", 100);
         //实际支付的总金额
         amountObj.put("total", 100);
         amountObj.put("currency", "CNY");

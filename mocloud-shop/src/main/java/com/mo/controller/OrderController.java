@@ -3,6 +3,7 @@ package com.mo.controller;
 import com.mo.aop.RepeatSubmit;
 import com.mo.constant.CacheKey;
 import com.mo.enums.BizCodeEnum;
+import com.mo.enums.OrderPayTypeEnum;
 import com.mo.interceptor.LoginInterceptor;
 import com.mo.model.LoginUserDTO;
 import com.mo.request.CreateOrderRequest;
@@ -46,6 +47,18 @@ public class OrderController {
 
         if (jsonData.getCode() == 0) {
             log.info("创建订单成功:{}", jsonData.getData());
+
+            String clientType = request.getClientType();
+            String payType = request.getPayType();
+
+            if (OrderPayTypeEnum.WECHAT_PAY.name().equalsIgnoreCase(payType)) {
+                //微信支付
+                CommonUtil.sendJsonMessage(response, jsonData);
+            } else if (OrderPayTypeEnum.ALIPAY.name().equalsIgnoreCase(payType)) {
+                //支付宝支付
+                CommonUtil.sendHtmlMessage(response, jsonData);
+            }
+
         } else {
             log.error("创建订单失败:{}", jsonData.getData());
             CommonUtil.sendJsonMessage(response, jsonData);

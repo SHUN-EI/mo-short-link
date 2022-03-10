@@ -3,12 +3,14 @@ package com.mo.config;
 import lombok.Data;
 import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
 import org.springframework.amqp.support.converter.MessageConverter;
+import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 /**
  * Created by mo on 2022/3/10
  */
+@ConfigurationProperties(prefix = "mqconfig")
 @Configuration
 @Data
 public class RabbitMQConfig {
