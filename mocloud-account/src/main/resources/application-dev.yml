@@ -28,6 +28,14 @@ spring:
         username: root
         password: mo12345
     sharding:
+      default-data-source-name: ds0
+      #默认的id生成策略
+      default-key-generator:
+        column: id
+        props:
+          worker:
+            id: ${workId}
+        type: SNOWFLAKE
       tables:
         # 指定traffic表的数据分布情况，配置数据节点,行表达式标识符使用 ${...} 或 $->{...}，
         # 但前者与 Spring 本身的文件占位符冲突，所以在 Spring 环境中建议使用 $->{...}
@@ -38,14 +46,7 @@ spring:
             inline:
               algorithm-expression: traffic_$->{account_no % 2}
               sharding-column: account_no
-          #id生成策略
-          key-generator:
-            column: id
-            props:
-              worker:
-                id: ${workId}
-            #id生成策略
-            type: SNOWFLAKE
+
 
   mail:    #邮箱配置
     host: smtp.126.com #发送邮件服务器
@@ -78,6 +79,23 @@ spring:
         min-idle: 100
         # 连接池最大阻塞等待时间（使用负值表示没有限制）
         max-wait: 180000
+  rabbitmq:   #消息队列
+    host: 39.108.182.26
+    port: 5672
+    virtual-host: /
+    username: admin
+    password: mo12345
+    listener:  #开启手动确认消息
+      simple:
+        #消息确认方式，manual(手动ack) 和auto(自动ack); 消息消费重试到达指定次数进到异常交换机和异常队列，需要改为自动ack确认消息
+        acknowledge-mode: auto
+        retry:
+          #开启重试，消费者代码不能添加try catch捕获不往外抛异常
+          enabled: true
+          #最大重试次数
+          max-attempts: 4
+          #重试消息的时间间隔，5秒
+          initial-interval: 5000
 
 #设置日志级别,ERROR/WARN/INFO/DEBUG,默认是INFO以上才显示
 logging:
@@ -95,3 +113,12 @@ sms:
 #    access-key-id:
 #    access-key-secret:
 #    bucketname: mo-short-link-account-service
+
+#自定义异常消息队列配置,消费消息重试一定次数后，用特定的routingKey转发到指定的交换机中，方便后续排查和告警
+mqerrorconfig:
+  #异常交换机
+  traffic_error_exchange: traffic.error.exchange
+  #异常消息队列
+  traffic_error_queue: traffic.error.queue
+  #异常消息的routingKey
+  traffic_error_routing_key: traffic.error.routing.key
