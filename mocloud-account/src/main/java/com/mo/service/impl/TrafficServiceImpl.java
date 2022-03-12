@@ -1,12 +1,16 @@
 package com.mo.service.impl;
 
 import com.mo.enums.EventMessageTypeEnum;
+import com.mo.interceptor.LoginInterceptor;
 import com.mo.manager.TrafficManager;
 import com.mo.model.EventMessage;
+import com.mo.model.LoginUserDTO;
 import com.mo.model.TrafficDO;
+import com.mo.request.TrafficPageRequest;
 import com.mo.service.TrafficService;
 import com.mo.utils.JsonUtil;
 import com.mo.vo.ProductVO;
+import com.mo.vo.TrafficVO;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,6 +32,38 @@ public class TrafficServiceImpl implements TrafficService {
 
     @Autowired
     private TrafficManager trafficManager;
+
+    /**
+     * 查找某个流量包详情
+     *
+     * @param trafficId
+     * @return
+     */
+    @Override
+    public TrafficVO detail(Long trafficId) {
+        LoginUserDTO loginUserDTO = LoginInterceptor.threadLocal.get();
+
+        trafficManager.findByIdAndAccountNo(trafficId, loginUserDTO.getAccountNo());
+        return null;
+    }
+
+    /**
+     * 分页查询流量包列表
+     * 不可用的需要去归档数据查
+     *
+     * @param request
+     * @return
+     */
+    @Override
+    public Map<String, Object> pageTrafficList(TrafficPageRequest request) {
+
+        LoginUserDTO loginUserDTO = LoginInterceptor.threadLocal.get();
+        request.setAccountNo(loginUserDTO.getAccountNo());
+
+        Map<String, Object> resultMap = trafficManager.pageTrafficList(request);
+
+        return resultMap;
+    }
 
     /**
      * 处理 MQ队列里面的流量包相关消息
@@ -74,7 +110,7 @@ public class TrafficServiceImpl implements TrafficService {
 
             //保存
             Integer rows = trafficManager.add(trafficDO);
-            log.info("消费消息新增流量包:rows={},trafficDO={}",rows,trafficDO);
+            log.info("消费消息新增流量包:rows={},trafficDO={}", rows, trafficDO);
         }
     }
 }
