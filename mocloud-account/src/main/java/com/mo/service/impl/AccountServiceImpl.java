@@ -1,10 +1,13 @@
 package com.mo.service.impl;
 
+import com.mo.config.RabbitMQConfig;
 import com.mo.enums.AuthTypeEnum;
 import com.mo.enums.BizCodeEnum;
+import com.mo.enums.EventMessageTypeEnum;
 import com.mo.enums.SendCodeEnum;
 import com.mo.manager.AccountManager;
 import com.mo.model.AccountDO;
+import com.mo.model.EventMessage;
 import com.mo.model.LoginUserDTO;
 import com.mo.request.AccountLoginRequest;
 import com.mo.request.AccountRegisterRequest;
@@ -17,6 +20,7 @@ import com.mo.utils.JsonData;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.digest.Md5Crypt;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -36,6 +40,15 @@ public class AccountServiceImpl implements AccountService {
     private NotifyService notifyService;
     @Autowired
     private AccountManager accountManager;
+    @Autowired
+    private RabbitTemplate rabbitTemplate;
+    @Autowired
+    private RabbitMQConfig rabbitMQConfig;
+
+    /**
+     * 免费流量包商品id, 默认为1L
+     */
+    private static final Long FREE_TRAFFIC_PRODUCT_ID = 1L;
 
     /**
      * 用户注册
@@ -119,9 +132,24 @@ public class AccountServiceImpl implements AccountService {
 
     /**
      * 新用户注册，初始化福利信息
+     * 注册成功后在发送
+     * <p>
+     * (消费者-消费消息前查询下是否有这个用户,非必要)
      *
      * @param accountDO
      */
     private void accountRegisterInitTask(AccountDO accountDO) {
+
+        EventMessage eventMessage = EventMessage.builder()
+                .messageId(IDUtil.geneSnowFlakeID().toString())
+                .accountNo(accountDO.getAccountNo())
+                .eventMessageType(EventMessageTypeEnum.TRAFFIC_FREE_INIT.name())
+                .bizId(FREE_TRAFFIC_PRODUCT_ID.toString())
+                .build();
+
+        //新用户注册，发送免费流量包消息
+        rabbitTemplate.convertAndSend(rabbitMQConfig.getTrafficEventExchange(),
+                rabbitMQConfig.getTrafficFreeInitRoutingKey(), eventMessage);
+
     }
 }

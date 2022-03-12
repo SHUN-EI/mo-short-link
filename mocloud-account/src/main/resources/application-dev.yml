@@ -114,6 +114,14 @@ sms:
 #    access-key-secret:
 #    bucketname: mo-short-link-account-service
 
+mqconfig:
+  #交换机
+  traffic_event_exchange: traffic.event.exchange
+  #免费流量包新增队列
+  traffic_free_init_queue: traffic.free_init.queue
+  #免费流量包新增-路由key
+  traffic_free_init_routing_key: traffic.free_init.routing.key
+
 
 #自定义异常消息队列配置,消费消息重试一定次数后，用特定的routingKey转发到指定的交换机中，方便后续排查和告警
 mqerrorconfig:
