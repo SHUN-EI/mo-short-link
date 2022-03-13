@@ -39,6 +39,21 @@ public class TrafficServiceImpl implements TrafficService {
     private ProductFeignService productFeignService;
 
     /**
+     * 过期流量包处理-物理删除过期流量包
+     *
+     * @return
+     */
+    @Override
+    public Boolean deleteExpireTraffic() {
+        LoginUserDTO loginUserDTO = LoginInterceptor.threadLocal.get();
+
+        int rows = trafficManager.deleteExpireTraffic(loginUserDTO.getAccountNo());
+        log.info("删除过期流量包行数：rows={}",rows);
+
+        return true;
+    }
+
+    /**
      * 查找某个流量包详情
      *
      * @param trafficId
@@ -122,7 +137,8 @@ public class TrafficServiceImpl implements TrafficService {
 
             JsonData jsonData = productFeignService.detail(productId);
 
-            ProductVO productVO = jsonData.getData(new TypeReference<ProductVO>() {});
+            ProductVO productVO = jsonData.getData(new TypeReference<ProductVO>() {
+            });
             //构建流量包对象
             TrafficDO trafficDO = TrafficDO.builder()
                     .accountNo(accountNo)

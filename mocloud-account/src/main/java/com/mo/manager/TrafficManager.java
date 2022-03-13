@@ -17,4 +17,6 @@ public interface TrafficManager {
     Integer addDayUsedTimes(Long currentTrafficId, Long accountNo, Integer dayUsedTimes);
 
     Map<String, Object> pageTrafficList(TrafficPageRequest request);
+
+    Integer deleteExpireTraffic(Long accountNo);
 }

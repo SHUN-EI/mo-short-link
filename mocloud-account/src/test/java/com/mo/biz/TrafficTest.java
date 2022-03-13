@@ -1,6 +1,7 @@
 package com.mo.biz;
 
 import com.mo.AccountApplication;
+import com.mo.manager.TrafficManager;
 import com.mo.mapper.TrafficMapper;
 import com.mo.model.TrafficDO;
 import lombok.extern.slf4j.Slf4j;
@@ -25,10 +26,19 @@ public class TrafficTest {
     private TrafficMapper trafficMapper;
     @Autowired
     private RabbitTemplate rabbitTemplate;
+    @Autowired
+    private TrafficManager trafficManager;
+
 
     @Test
-    public void testSendMsg(){
-        rabbitTemplate.convertAndSend("order.event.exchange","order.update.traffic.routing.key","this is traffic message");
+    public void testDeleteExpiredTraffic() {
+        Integer rows = trafficManager.deleteExpireTraffic(Long.valueOf("701142527029280768"));
+        log.info("删除过期流量包行数：rows={}",rows);
+    }
+
+    @Test
+    public void testSendMsg() {
+        rabbitTemplate.convertAndSend("order.event.exchange", "order.update.traffic.routing.key", "this is traffic message");
 
     }
 

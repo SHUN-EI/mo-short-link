@@ -28,6 +28,23 @@ public class TrafficManagerImpl implements TrafficManager {
     @Autowired
     private TrafficMapper trafficMapper;
 
+    /**
+     * 物理删除过期流量包
+     *
+     * @param accountNo
+     * @return
+     */
+    @Override
+    public Integer deleteExpireTraffic(Long accountNo) {
+
+        int result = trafficMapper.delete(new QueryWrapper<TrafficDO>()
+                .eq("account_no", accountNo)
+                //体验时间小于等于当前时间
+                .le("expired_date", new Date()));
+
+        return result;
+    }
+
     @Override
     public Integer add(TrafficDO trafficDO) {
 

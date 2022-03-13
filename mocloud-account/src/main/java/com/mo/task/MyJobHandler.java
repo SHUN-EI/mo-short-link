@@ -8,7 +8,6 @@ import org.springframework.stereotype.Component;
 /**
  * Created by mo on 2022/3/13
  */
-@Component
 @Slf4j
 public class MyJobHandler {
 

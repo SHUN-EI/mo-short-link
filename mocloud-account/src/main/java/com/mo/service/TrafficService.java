@@ -16,4 +16,6 @@ public interface TrafficService {
     Map<String, Object> pageTrafficList(TrafficPageRequest request);
 
     TrafficVO detail(Long trafficId);
+
+    Boolean deleteExpireTraffic();
 }
