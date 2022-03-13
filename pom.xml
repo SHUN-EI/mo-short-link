@@ -34,7 +34,7 @@
         <commons.lang3.version>3.9</commons.lang3.version>
         <commons.codec.version>1.15</commons.codec.version>
 
-        <xxl-job.version>2.3.0</xxl-job.version>
+        <xxl-job.version>2.2.0</xxl-job.version>
         <knife4j.version>3.0.3</knife4j.version>
 
         <aliyun.oss.version>3.10.2</aliyun.oss.version>
@@ -174,8 +174,7 @@
                 <version>${junit.version}</version>
             </dependency>
 
-
-            <!-- https://mvnrepository.com/artifact/com.xuxueli/xxl-job-core -->
+            <!--分布式调度-->
             <dependency>
                 <groupId>com.xuxueli</groupId>
                 <artifactId>xxl-job-core</artifactId>

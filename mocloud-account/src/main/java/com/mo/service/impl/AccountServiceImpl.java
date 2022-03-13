@@ -88,7 +88,7 @@ public class AccountServiceImpl implements AccountService {
         Integer rows = accountManager.insert(accountDO);
         log.info("rows:{},注册成功:{}", rows, accountDO.toString());
 
-        //新用户注册成功，初始化信息，发放优惠券
+        //新用户注册成功，初始化信息，发放流量包
         accountRegisterInitTask(accountDO);
 
         return JsonData.buildSuccess(accountDO);
