@@ -29,6 +29,61 @@ public class TrafficManagerImpl implements TrafficManager {
     private TrafficMapper trafficMapper;
 
     /**
+     * 批量更新流量包使用次数为0
+     *
+     * @param accountNo
+     * @param unUpdatedTrafficIds
+     * @return
+     */
+    @Override
+    public Integer batchUpdateUsedTimes(Long accountNo, List<Long> unUpdatedTrafficIds) {
+        int rows = trafficMapper.update(null, new UpdateWrapper<TrafficDO>()
+                .eq("account_no", accountNo)
+                .in("id", unUpdatedTrafficIds)
+                .set("day_used", 0));
+
+        return rows;
+    }
+
+    /**
+     * 恢复流量包的当天使用次数
+     * 流量包每天都有一定的使用次数，如每天5次，每天10次等
+     *
+     * @param accountNo
+     * @param trafficId
+     * @param dayUsedTimes
+     * @return
+     */
+    @Override
+    public Integer releaseUsedTimes(Long accountNo, Long trafficId, Integer dayUsedTimes) {
+        return trafficMapper.releaseUsedTimes(accountNo, trafficId, dayUsedTimes);
+    }
+
+    /**
+     * 查找可用的短链流量包(未过期),包括免费流量包
+     * （不一定可用，可能超过次数）
+     * select * from traffic where account_no =111
+     * and (expired_date >= ? OR out_trade_no=free_init )
+     *
+     * @param accountNo
+     * @return
+     */
+    @Override
+    public List<TrafficDO> selectAvailableTraffics(Long accountNo) {
+
+        String today = TimeUtil.format(new Date(), "yyyy-MM-dd");
+
+        QueryWrapper<TrafficDO> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("account_no", accountNo);
+        queryWrapper.and(wrapper -> wrapper.ge("expired_date", today)
+                .or().eq("out_trade_no", "free_init"));
+
+        List<TrafficDO> trafficDOList = trafficMapper.selectList(queryWrapper);
+
+        return trafficDOList;
+    }
+
+    /**
      * 物理删除过期流量包
      *
      * @param accountNo
@@ -61,18 +116,17 @@ public class TrafficManagerImpl implements TrafficManager {
     /**
      * 给某个流量包增加天使用次数
      *
-     * @param currentTrafficId
      * @param accountNo
+     * @param trafficId
      * @param dayUsedTimes
      * @return
      */
     @Override
-    public Integer addDayUsedTimes(Long currentTrafficId, Long accountNo, Integer dayUsedTimes) {
-        return trafficMapper.update(null, new UpdateWrapper<TrafficDO>()
-                .eq("account_no", accountNo)
-                .eq("id", currentTrafficId)
-                .set("day_used", dayUsedTimes));
+    public Integer addDayUsedTimes(Long accountNo, Long trafficId, Integer dayUsedTimes) {
+
+        return trafficMapper.addDayUsedTimes(accountNo, trafficId, dayUsedTimes);
     }
+
 
     @Override
     public Map<String, Object> pageTrafficList(TrafficPageRequest request) {

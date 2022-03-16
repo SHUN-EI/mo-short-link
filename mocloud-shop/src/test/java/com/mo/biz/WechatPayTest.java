@@ -82,7 +82,7 @@ public class WechatPayTest {
     public void testNativeRefundOrder() {
 
         //订单号
-        String outTradeNo = "XD220310000000076974";
+        String outTradeNo = "XD220316000000024422";
         //退款单号
         String refundNo = orderCodeGenerateUtil.generateOrderCode(OrderCodeEnum.TK);
 

@@ -12,6 +12,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import java.sql.Array;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Random;
 
 /**
@@ -29,11 +33,36 @@ public class TrafficTest {
     @Autowired
     private TrafficManager trafficManager;
 
+    @Test
+    public void testBatchUpdateUsedTimes() {
+
+        Integer rows = trafficManager.batchUpdateUsedTimes(709593930177445888L, Arrays.asList(709593953232068608L));
+        log.info("批量更新流量包使用次数为0,{}", rows);
+    }
+
+    @Test
+    public void testReleaseDayUsedTimes() {
+        int rows = trafficManager.releaseUsedTimes(709593930177445888L, 709593953232068608L, 1);
+        log.info("恢复流量包的当天使用次数,{}", rows);
+    }
+
+    @Test
+    public void testAddDayUsedTimes() {
+        Integer rows = trafficManager.addDayUsedTimes(709593930177445888L, 709593953232068608L, 1);
+        log.info("给某个流量包增加天使用次数,{}", rows);
+    }
+
+    @Test
+    public void testSelectAvailableTraffics() {
+        List<TrafficDO> trafficDOS = trafficManager.selectAvailableTraffics(709593930177445888L);
+        trafficDOS.stream().forEach(obj -> log.info("流量包为:{}", obj));
+    }
+
 
     @Test
     public void testDeleteExpiredTraffic() {
         Integer rows = trafficManager.deleteExpireTraffic(Long.valueOf("701142527029280768"));
-        log.info("删除过期流量包行数：rows={}",rows);
+        log.info("删除过期流量包行数：rows={}", rows);
     }
 
     @Test
