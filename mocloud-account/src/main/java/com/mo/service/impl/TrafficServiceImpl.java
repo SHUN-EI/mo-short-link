@@ -1,6 +1,7 @@
 package com.mo.service.impl;
 
 import com.alibaba.fastjson.TypeReference;
+import com.mo.constant.CacheKey;
 import com.mo.constant.TimeConstant;
 import com.mo.enums.BizCodeEnum;
 import com.mo.enums.EventMessageTypeEnum;
@@ -23,6 +24,7 @@ import com.mo.vo.TrafficVO;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -33,6 +35,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Created by mo on 2022/3/10
@@ -45,6 +48,8 @@ public class TrafficServiceImpl implements TrafficService {
     private TrafficManager trafficManager;
     @Autowired
     private ProductFeignService productFeignService;
+    @Autowired
+    private RedisTemplate<Object, Object> redisTemplate;
 
     /**
      * 流量包使用(扣减)
@@ -76,6 +81,21 @@ public class TrafficServiceImpl implements TrafficService {
         if (rows != 1) {
             throw new BizException(BizCodeEnum.TRAFFIC_REDUCE_FAIL);
         }
+
+        //在redis中设置总流量包次数，创建短链时，短链服务递减即可
+        //若有新增的流量包，则删除这个key
+
+        //先获取当天剩余的秒数,用于流量包过期配置
+        long leftSecondsOneDay = TimeUtil.getRemainSecondsOneDay(new Date());
+
+        //缓存key
+        String trafficDayTotalTimesKey = String.format(CacheKey.TRAFFIC_DAY_TOTAL_KEY, accountNo);
+
+        //保存总流量包次数到redis，用于高并发下短链服务扣减流量包
+        //减少1是减去此次已使用的的流量包次数
+        redisTemplate.opsForValue().setIfAbsent(trafficDayTotalTimesKey,
+                trafficUseVO.getDayTotalLeftTimes() - 1,
+                leftSecondsOneDay, TimeUnit.SECONDS);
 
         return JsonData.buildSuccess(trafficUseVO);
     }
@@ -234,6 +254,11 @@ public class TrafficServiceImpl implements TrafficService {
             //保存
             Integer rows = trafficManager.add(trafficDO);
             log.info("消费消息新增流量包:rows={},trafficDO={}", rows, trafficDO);
+
+            //新增流量包，删除redis中缓存的key
+            String trafficDayTotalTimesKey = String.format(CacheKey.TRAFFIC_DAY_TOTAL_KEY, accountNo);
+            redisTemplate.delete(trafficDayTotalTimesKey);
+
         } else if (EventMessageTypeEnum.TRAFFIC_FREE_INIT.name().equalsIgnoreCase(messageType)) {
             //新用户注册,发放免费流量包
             Long productId = Long.valueOf(eventMessage.getBizId());

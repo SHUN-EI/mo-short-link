@@ -24,4 +24,9 @@ public class CacheKey {
      * 订单-防重提交缓存token-key前缀，第一个%s是user_id,第二个%s是token
      */
     public static final String ORDER_REPEAT_SUBMIT_TOKEN_KEY = "order:submit:%s:%s";
+
+    /**
+     * 流量包-存储流量包1天剩余可用总次数，缓存key的前缀, %s为accountNo，用户唯一标识
+     */
+    public static final String TRAFFIC_DAY_TOTAL_KEY = "lock:traffic:day_total:%s";
 }

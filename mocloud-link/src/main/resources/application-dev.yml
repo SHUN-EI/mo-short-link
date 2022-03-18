@@ -186,3 +186,7 @@ mqerrorconfig:
   #异常消息的routingKey
   short_link_error_routing_key: short_link.error.routing.key
 
+#远程调用接口鉴权token,用于feign 远程调用服务接口
+rpc:
+  token: mo-short-link
+

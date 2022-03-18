@@ -1,5 +1,6 @@
 package com.mo.controller;
 
+import com.mo.enums.BizCodeEnum;
 import com.mo.request.TrafficPageRequest;
 import com.mo.request.TrafficUseRequest;
 import com.mo.service.TrafficService;
@@ -9,8 +10,11 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.Map;
 
 /**
@@ -23,12 +27,23 @@ public class TrafficController {
 
     @Autowired
     private TrafficService trafficService;
+    @Value("${rpc.token}")
+    private String rpcToekn;
 
     @ApiOperation("流量包使用")
     @PostMapping("/reduce")
-    public JsonData reduce(@ApiParam("流量包扣减请求对象") @RequestBody TrafficUseRequest request) {
-        JsonData jsonData = trafficService.reduce(request);
-        return jsonData;
+    public JsonData reduce(@ApiParam("流量包扣减请求对象") @RequestBody TrafficUseRequest request, HttpServletRequest servletRequest) {
+
+        //获取请求接口的鉴权token
+        String requestToken = servletRequest.getHeader("rpc-token");
+        if (requestToken.equalsIgnoreCase(rpcToekn)) {
+            JsonData jsonData = trafficService.reduce(request);
+            return jsonData;
+        } else {
+            //非法访问
+            return JsonData.buildError(HttpStatus.FORBIDDEN.name());
+        }
+
     }
 
 

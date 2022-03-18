@@ -1,19 +1,19 @@
 package com.mo.service.impl;
 
 import com.mo.config.RabbitMQConfig;
+import com.mo.constant.CacheKey;
+import com.mo.enums.BizCodeEnum;
 import com.mo.enums.DomainTypeEnum;
 import com.mo.enums.EventMessageTypeEnum;
 import com.mo.enums.ShortLinkStateEnum;
+import com.mo.feign.TrafficFeignService;
 import com.mo.interceptor.LoginInterceptor;
 import com.mo.manager.DomainManager;
 import com.mo.manager.GroupCodeMappingManager;
 import com.mo.manager.LinkGroupManager;
 import com.mo.manager.ShortLinkManager;
 import com.mo.model.*;
-import com.mo.request.ShortLinkAddRequest;
-import com.mo.request.ShortLinkDeleteRequest;
-import com.mo.request.ShortLinkPageRequest;
-import com.mo.request.ShortLinkUpdateRequest;
+import com.mo.request.*;
 import com.mo.service.ShortLinkService;
 import com.mo.strategy.ShardingDBConfig;
 import com.mo.strategy.ShardingTableConfig;
@@ -58,6 +58,8 @@ public class ShortLinkServiceImpl implements ShortLinkService {
     private GroupCodeMappingManager groupCodeMappingManager;
     @Autowired
     private RedisTemplate<Object, Object> redisTemplate;
+    @Autowired
+    private TrafficFeignService trafficFeignService;
 
 
     /**
@@ -266,22 +268,29 @@ public class ShortLinkServiceImpl implements ShortLinkService {
                 ShortLinkDO shortLinCodeDOInDB = shortLinkManager.findByShortLinCode(shortLinkCode);
                 if (null == shortLinCodeDOInDB) {
 
-                    ShortLinkDO shortLinkDO = ShortLinkDO.builder()
-                            .accountNo(accountNo)
-                            .code(shortLinkCode)
-                            .title(request.getTitle())
-                            .originalUrl(request.getOriginalUrl())
-                            .domain(domainDO.getValue())
-                            .groupId(linkGroupDO.getId())
-                            .expired(request.getExpired())
-                            .sign(originalUrlDigest)
-                            .state(ShortLinkStateEnum.ACTIVE.name())
-                            .del(0)
-                            .build();
+                    //先扣减用户的流量包，再创建短链
+                    Boolean reduceTrafficFlag = reduceTraffic(eventMessage, shortLinkCode);
 
-                    //保存
-                    shortLinkManager.addShortLink(shortLinkDO);
-                    return true;
+                    //流量包扣减成功
+                    if (reduceTrafficFlag) {
+                        ShortLinkDO shortLinkDO = ShortLinkDO.builder()
+                                .accountNo(accountNo)
+                                .code(shortLinkCode)
+                                .title(request.getTitle())
+                                .originalUrl(request.getOriginalUrl())
+                                .domain(domainDO.getValue())
+                                .groupId(linkGroupDO.getId())
+                                .expired(request.getExpired())
+                                .sign(originalUrlDigest)
+                                .state(ShortLinkStateEnum.ACTIVE.name())
+                                .del(0)
+                                .build();
+
+                        //保存
+                        shortLinkManager.addShortLink(shortLinkDO);
+                        return true;
+                    }
+
                 } else {
                     //短链码被占用
                     log.error("C端短链码重复:{}", eventMessage);
@@ -340,6 +349,31 @@ public class ShortLinkServiceImpl implements ShortLinkService {
     }
 
     /**
+     * 流量包使用(扣减)
+     * 在创建短链前，需要调用此方法
+     *
+     * @param eventMessage
+     * @param shortLinkCode
+     * @return
+     */
+    private Boolean reduceTraffic(EventMessage eventMessage, String shortLinkCode) {
+
+        TrafficUseRequest request = TrafficUseRequest.builder()
+                .accountNo(eventMessage.getAccountNo())
+                .bizId(shortLinkCode)
+                .build();
+
+        JsonData jsonData = trafficFeignService.reduceTraffic(request);
+
+        if (jsonData.getCode() != 0) {
+            log.error("流量包不足，扣减失败:{}", eventMessage);
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
      * 创建短链
      *
      * @param request
@@ -350,22 +384,42 @@ public class ShortLinkServiceImpl implements ShortLinkService {
 
         LoginUserDTO loginUserDTO = LoginInterceptor.threadLocal.get();
 
-        //URL增加前缀,保证原始url 能生成唯一的不同的短链码
-        //拼接后 1469558440337604610&https://xdclass.net
-        String newOriginalUrl = CommonUtil.addUrlPrefix(request.getOriginalUrl());
-        request.setOriginalUrl(newOriginalUrl);
+        //先去redis里查找是否有足够的流量包次数，以供可以创建短链
+        String trafficDayTotalTimesKey = String.format(CacheKey.TRAFFIC_DAY_TOTAL_KEY, loginUserDTO.getAccountNo());
 
-        EventMessage eventMessage = EventMessage.builder()
-                .accountNo(loginUserDTO.getAccountNo())
-                .content(JsonUtil.obj2Json(request))
-                .messageId(IDUtil.geneSnowFlakeID().toString())
-                .eventMessageType(EventMessageTypeEnum.SHORT_LINK_ADD.name())
-                .build();
+        // 若key存在，然后就递减1，是否大于等于0，使用lua脚本
+        // 若key不存在，则未使用过，lua返回值是0；
+        // 新增流量包的时候，不用重新计算次数，直接删除key
+        // 创建短链时，消费流量包次数的时候需要计算更新次数
+        // 用户有免费的流量包，每次可以创建短链2次，所以就算key不存在，用户仍然允许创建短链
+        String script = "if redis.call('get',KEYS[1]) then return redis.call('decr',KEYS[1]) else return 0 end";
 
-        //发送消息
-        rabbitTemplate.convertAndSend(rabbitMQConfig.getShortLinkEventExchange(), rabbitMQConfig.getShortLinkAddRoutingKey(), eventMessage);
+        Long leftTimes = redisTemplate.execute(new DefaultRedisScript<>(script, Long.class),
+                Arrays.asList(trafficDayTotalTimesKey), "");
 
-        return JsonData.buildSuccess();
+        log.info("今日流量包剩余次数:{}", leftTimes);
+        if (leftTimes >= 0) {
+            //URL增加前缀,保证原始url 能生成唯一的不同的短链码
+            //拼接后 1469558440337604610&https://xdclass.net
+            String newOriginalUrl = CommonUtil.addUrlPrefix(request.getOriginalUrl());
+            request.setOriginalUrl(newOriginalUrl);
+
+            EventMessage eventMessage = EventMessage.builder()
+                    .accountNo(loginUserDTO.getAccountNo())
+                    .content(JsonUtil.obj2Json(request))
+                    .messageId(IDUtil.geneSnowFlakeID().toString())
+                    .eventMessageType(EventMessageTypeEnum.SHORT_LINK_ADD.name())
+                    .build();
+
+            //发送消息
+            rabbitTemplate.convertAndSend(rabbitMQConfig.getShortLinkEventExchange(), rabbitMQConfig.getShortLinkAddRoutingKey(), eventMessage);
+
+            return JsonData.buildSuccess();
+        } else {
+            //流量包不足，可用次数不足
+            return JsonData.buildResult(BizCodeEnum.TRAFFIC_REDUCE_FAIL);
+        }
+
     }
 
     /**
