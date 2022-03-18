@@ -136,7 +136,7 @@ wechatpay:
   #支付成功页面跳转
   success-return-url: https://xdclass.net
   #支付成功，回调通知
-  callback-url: http://gnwhky.natappfree.cc/api/pay/v1/wechatPayCallback
+  callback-url: http://jauudt.natappfree.cc/api/pay/v1/wechatPayCallback
 
 #支付宝支付配置
 alipay:
@@ -146,7 +146,7 @@ alipay:
   #callback_url: http://moshop.ngrok2.xiaomiqiu.cn/api/pay/v1/callback/alipay
   #引入gateway后需要转发到网关地址
   #callback_url: http://moshop.ngrok2.xiaomiqiu.cn/order-server/api/pay/v1/callback/alipay
-  callback_url: http://gnwhky.natappfree.cc/order-server/api/pay/v1/callback/alipay
+  callback_url: http://jauudt.natappfree.cc/order-server/api/pay/v1/callback/alipay
 
 
 
