@@ -23,7 +23,7 @@ public interface TrafficManager {
 
     Integer addDayUsedTimes(Long accountNo, Long trafficId, Integer dayUsedTimes);
 
-    Integer releaseUsedTimes(Long accountNo, Long trafficId, Integer dayUsedTimes);
+    Integer releaseUsedTimes(Long accountNo, Long trafficId, Integer dayUsedTimes,String useDateStr);
 
     Integer batchUpdateUsedTimes(Long accountNo, List<Long> unUpdatedTrafficIds);
 

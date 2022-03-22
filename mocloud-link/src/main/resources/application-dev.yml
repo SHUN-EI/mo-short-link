@@ -175,8 +175,6 @@ mqconfig:
   short_link_update_mapping_binding_key: short_link.update.*.mapping.routing.key
 
 
-
-
 #自定义异常消息队列配置,消费消息重试一定次数后，用特定的routingKey转发到指定的交换机中，方便后续排查和告警
 mqerrorconfig:
   #异常交换机

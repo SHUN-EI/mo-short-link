@@ -118,7 +118,7 @@ public class RabbitMQConfig {
         Map<String, Object> args = new HashMap<>(3);
 
         args.put("x-dead-letter-exchange", trafficEventExchange);
-        args.put("x-dead-letter-routing-key", trafficReleaseDelayRoutingKey);
+        args.put("x-dead-letter-routing-key", trafficReleaseRoutingKey);
         args.put("x-message-ttl", ttl);
 
         return new Queue(trafficReleaseDelayQueue, true, false, false, args);
@@ -144,7 +144,7 @@ public class RabbitMQConfig {
      */
     @Bean
     public Binding trafficReleaseDelayQueueBinding() {
-        return new Binding(trafficReleaseDelayQueue, Binding.DestinationType.QUEUE, trafficEventExchange, trafficReleaseRoutingKey, null);
+        return new Binding(trafficReleaseDelayQueue, Binding.DestinationType.QUEUE, trafficEventExchange, trafficReleaseDelayRoutingKey, null);
     }
 
     /**

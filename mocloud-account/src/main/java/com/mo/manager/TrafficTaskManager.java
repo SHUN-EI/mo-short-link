@@ -12,5 +12,7 @@ public interface TrafficTaskManager {
 
     TrafficTaskDO findByIdAndAccountNo(Long id,Long accountNo);
 
+    Integer updateTaskState(Long id,Long accountNo,String newState,String oldState);
+
     Integer delete(Long id,Long accountNo);
 }

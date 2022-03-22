@@ -6,15 +6,16 @@ import com.mo.request.ShortLinkPageRequest;
 import com.mo.request.ShortLinkUpdateRequest;
 import com.mo.service.ShortLinkService;
 import com.mo.utils.JsonData;
+import com.mo.vo.ShortLinkVO;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.Map;
 
 /**
@@ -27,6 +28,25 @@ public class ShortLinkController {
 
     @Autowired
     private ShortLinkService shortLinkService;
+    @Value("${rpc.token}")
+    private String rpcToekn;
+
+    @ApiOperation("检查短链是否存在")
+    @GetMapping("/checkShortLinkExists")
+    public JsonData checkShortLinkExists(@ApiParam("短链码") @RequestParam("shortLinkCode") String shortLinkCode, HttpServletRequest servletRequest) {
+
+        //获取请求接口的鉴权token
+        String requestToken = servletRequest.getHeader("rpc-token");
+
+        if (requestToken.equalsIgnoreCase(rpcToekn)) {
+            ShortLinkVO shortLinkVO = shortLinkService.parseShortLinkCode(shortLinkCode);
+            return shortLinkVO == null ? JsonData.buildError("短链不存在")
+                    : JsonData.buildSuccess(shortLinkVO);
+        } else {
+            //非法访问
+            return JsonData.buildError(HttpStatus.FORBIDDEN.name());
+        }
+    }
 
     @ApiOperation("创建短链")
     @PostMapping("/add")

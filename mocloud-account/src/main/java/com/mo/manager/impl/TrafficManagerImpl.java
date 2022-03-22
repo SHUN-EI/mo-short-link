@@ -25,6 +25,7 @@ import java.util.stream.Collectors;
 @Component
 public class TrafficManagerImpl implements TrafficManager {
 
+
     @Autowired
     private TrafficMapper trafficMapper;
 
@@ -52,11 +53,12 @@ public class TrafficManagerImpl implements TrafficManager {
      * @param accountNo
      * @param trafficId
      * @param dayUsedTimes
+     * @param useDateStr
      * @return
      */
     @Override
-    public Integer releaseUsedTimes(Long accountNo, Long trafficId, Integer dayUsedTimes) {
-        return trafficMapper.releaseUsedTimes(accountNo, trafficId, dayUsedTimes);
+    public Integer releaseUsedTimes(Long accountNo, Long trafficId, Integer dayUsedTimes, String useDateStr) {
+        return trafficMapper.releaseUsedTimes(accountNo, trafficId, dayUsedTimes,useDateStr);
     }
 
     /**
@@ -115,7 +117,6 @@ public class TrafficManagerImpl implements TrafficManager {
 
     /**
      * 给某个流量包增加天使用次数
-     *
      * @param accountNo
      * @param trafficId
      * @param dayUsedTimes

@@ -17,6 +17,6 @@ public class InterceptorConfig implements WebMvcConfigurer {
                 //拦截路径
                 .addPathPatterns("/api/link/*/**", "/api/group/*/**","/api/domain/*/**")
                 //不拦截路径
-                .excludePathPatterns();
+                .excludePathPatterns("/api/link/*/checkShortLinkExists");
     }
 }

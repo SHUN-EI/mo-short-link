@@ -159,7 +159,7 @@ mqconfig:
   #消息过期，进入死信队列的key
   traffic_release_routing_key: traffic.release.routing.key
   #消息过期时间,毫秒,测试改为15秒-15000
-  ttl: 300000 # 流量包任务超过5分钟则恢复
+  ttl: 300000 # 流量包任务超过5分钟则恢复,5分钟-300000
 
 
 

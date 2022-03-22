@@ -34,7 +34,9 @@
     <update id="releaseUsedTimes">
         update traffic set day_used = day_used - #{dayUsedTimes}
         where id = #{trafficId} and account_no = #{accountNo}
-        and (day_used - #{dayUsedTimes}) >= 0 limit 1
+        and (day_used - #{dayUsedTimes}) >= 0
+        and date_format(update_time, '%Y-%m-%d') = #{useDateStr}
+        limit 1
     </update>
 
 </mapper>

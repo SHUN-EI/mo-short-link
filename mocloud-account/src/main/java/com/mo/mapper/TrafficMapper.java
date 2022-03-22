@@ -16,6 +16,7 @@ public interface TrafficMapper extends BaseMapper<TrafficDO> {
 
     /**
      * 给某个流量包增加天使用次数
+     *
      * @param accountNo
      * @param trafficId
      * @param dayUsedTimes
@@ -27,12 +28,15 @@ public interface TrafficMapper extends BaseMapper<TrafficDO> {
 
     /**
      * 恢复流量包的当天使用次数
+     *
      * @param accountNo
      * @param trafficId
      * @param dayUsedTimes
+     * @param useDateStr
      * @return
      */
     Integer releaseUsedTimes(@Param("accountNo") Long accountNo,
                              @Param("trafficId") Long trafficId,
-                             @Param("dayUsedTimes") Integer dayUsedTimes);
+                             @Param("dayUsedTimes") Integer dayUsedTimes,
+                             @Param("useDateStr") String useDateStr);
 }

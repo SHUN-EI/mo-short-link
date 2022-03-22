@@ -1,9 +1,11 @@
 package com.mo.biz;
 
 import com.mo.AccountApplication;
+import com.mo.constant.TimeConstant;
 import com.mo.manager.TrafficManager;
 import com.mo.mapper.TrafficMapper;
 import com.mo.model.TrafficDO;
+import com.mo.utils.TimeUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -13,10 +15,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.sql.Array;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 /**
  * Created by mo on 2022/2/16
@@ -42,7 +41,8 @@ public class TrafficTest {
 
     @Test
     public void testReleaseDayUsedTimes() {
-        int rows = trafficManager.releaseUsedTimes(709593930177445888L, 709593953232068608L, 1);
+        String useDateStr = TimeUtil.format(new Date(), TimeConstant.DATE_YYYY_MM_DD);
+        int rows = trafficManager.releaseUsedTimes(709593930177445888L, 709593953232068608L, 1, useDateStr);
         log.info("恢复流量包的当天使用次数,{}", rows);
     }
 
