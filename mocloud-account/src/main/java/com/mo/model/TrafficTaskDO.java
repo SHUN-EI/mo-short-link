@@ -14,7 +14,7 @@ import lombok.EqualsAndHashCode;
  * </p>
  *
  * @author mo
- * @since 2022-02-08
+ * @since 2022-03-22
  */
 @Data
 @EqualsAndHashCode(callSuper = false)
@@ -49,7 +49,7 @@ public class TrafficTaskDO implements Serializable {
     /**
      * 唯一标识
      */
-    private String messageId;
+    private String bizId;
 
     /**
      * 创建时间

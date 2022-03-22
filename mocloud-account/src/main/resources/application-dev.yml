@@ -141,6 +141,8 @@ sms:
 #    access-key-secret:
 #    bucketname: mo-short-link-account-service
 
+
+#自定义消息队列配置，发送锁定流量包消息-》延迟exchange-》delay.queue-》死信exchange-》release.queue 延迟队列，不能被监听消费
 mqconfig:
   #交换机
   traffic_event_exchange: traffic.event.exchange
@@ -148,6 +150,17 @@ mqconfig:
   traffic_free_init_queue: traffic.free_init.queue
   #免费流量包新增-路由key
   traffic_free_init_routing_key: traffic.free_init.routing.key
+  #延迟队列，不能被监听消费
+  traffic_release_delay_queue: traffic.release.delay.queue
+  #进入延迟队列的路由key
+  traffic_release_delay_routing_key: traffic.release.delay.routing.key
+  #流量包恢复队列，延迟队列的消息过期后转发的队列-死信队列
+  traffic_release_queue: traffic.release.queue
+  #消息过期，进入死信队列的key
+  traffic_release_routing_key: traffic.release.routing.key
+  #消息过期时间,毫秒,测试改为15秒-15000
+  ttl: 300000 # 流量包任务超过5分钟则恢复
+
 
 
 #自定义异常消息队列配置,消费消息重试一定次数后，用特定的routingKey转发到指定的交换机中，方便后续排查和告警

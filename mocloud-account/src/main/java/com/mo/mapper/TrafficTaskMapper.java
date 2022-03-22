@@ -1,7 +1,7 @@
 package com.mo.mapper;
 
-import com.mo.model.TrafficTaskDO;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.mo.model.TrafficTaskDO;
 
 /**
  * <p>

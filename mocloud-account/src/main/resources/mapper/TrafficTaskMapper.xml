@@ -9,14 +9,14 @@
         <result column="traffic_id" property="trafficId" />
         <result column="use_times" property="useTimes" />
         <result column="lock_state" property="lockState" />
-        <result column="message_id" property="messageId" />
+        <result column="biz_id" property="bizId" />
         <result column="create_time" property="createTime" />
         <result column="update_time" property="updateTime" />
     </resultMap>
 
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
-        id, account_no, traffic_id, use_times, lock_state, message_id, create_time, update_time
+        id, account_no, traffic_id, use_times, lock_state, biz_id, create_time, update_time
     </sql>
 
 </mapper>
